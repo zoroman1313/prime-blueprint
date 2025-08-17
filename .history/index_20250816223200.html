@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Blueprint - Renovation Album</title>
+    <style>
+        /* CSS Variables - Luxury Color Palette */
+        :root {
+            --ink: #1C1C1C;
+            --stone: #F4F1EC;
+            --taupe: #C6B8A6;
+            --clay: #9C8363;
+            --moss: #6F7B6B;
+            --accent: #C8A96B;
+            
+            /* Dark theme overrides */
+            --bg-primary: var(--stone);
+            --bg-secondary: #ffffff;
+            --text-primary: var(--ink);
+            --text-secondary: var(--clay);
+            --border-light: rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: var(--stone);
+            --text-secondary: var(--taupe);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Typography */
+        .heading-font {
+            font-family: "Garamond", "Palatino Linotype", "Times New Roman", serif;
+            letter-spacing: -0.02em;
+        }
+
+        .body-font {
+            font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .brand-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .rooms-section {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .room-item {
+            padding: 0.75rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-item:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        .room-item.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .room-info {
+            flex: 1;
+        }
+
+        .room-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .room-type {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .room-item:hover .room-actions {
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b8965a;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--taupe);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-room-btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-header {
+            padding: 1.5rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .global-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Export Dropdown */
+        .export-dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle::after {
+            content: '';
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            min-width: 200px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            text-align: left;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 0;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--taupe);
+            color: white;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .main-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Room Editor */
+        .room-editor {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .room-title-section {
+            margin-bottom: 3rem;
+        }
+
+        .room-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .room-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .room-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Photo Sections */
+        .photo-section {
+            margin-bottom: 3rem;
+        }
+
+        .photo-section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg-secondary);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: var(--stone);
+        }
+
+        .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(200, 169, 107, 0.1);
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .upload-subtext {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .photo-item {
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .photo-frame {
+            padding: 12px;
+            background: var(--stone);
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+        }
+
+        .photo-caption {
+            padding: 1rem;
+        }
+
+        .photo-caption input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            padding: 0.25rem 0;
+        }
+
+        .photo-caption input:focus {
+            outline: none;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        .photo-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .photo-item:hover .photo-actions {
+            opacity: 1;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Album Preview */
+        .album-preview {
+            background: white;
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        .cover-page {
+            padding: 4rem 3rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-light);
+            page-break-after: always;
+        }
+
+        .cover-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--ink);
+        }
+
+        .cover-subtitle {
+            font-size: 1.25rem;
+            color: var(--clay);
+            margin-bottom: 3rem;
+        }
+
+        .cover-brand {
+            margin-top: auto;
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .toc-page {
+            padding: 3rem;
+            page-break-after: always;
+        }
+
+        .toc-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--ink);
+            text-align: center;
+        }
+
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .room-page {
+            padding: 3rem;
+            page-break-before: always;
+            min-height: 100vh;
+        }
+
+        .room-page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .room-page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .room-photos-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 3rem 0;
+        }
+
+        .photos-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .column-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--clay);
+        }
+
+        .photo-collage {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .collage-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            padding: 8px;
+            background: var(--stone);
+        }
+
+        .room-description {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--clay);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .room-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-prev {
+            left: -60px;
+        }
+
+        .lightbox-next {
+            right: -60px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1100;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        /* Onboarding */
+        .onboarding {
+            background: var(--accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .onboarding-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .onboarding-text {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Hide elements in print mode */
+        @media print {
+            .sidebar,
+            .main-header,
+            .btn,
+            .modal-overlay,
+            .lightbox,
+            .toast,
+            .onboarding,
+            .photo-actions,
+            .room-actions,
+            .upload-zone {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .album-preview {
+                background: white;
+                color: var(--ink);
+            }
+            
+            /* Force light theme for print */
+            :root {
+                --bg-primary: white;
+                --bg-secondary: white;
+                --text-primary: var(--ink);
+                --text-secondary: var(--clay);
+                --border-light: rgba(0, 0, 0, 0.08);
+            }
+            
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+            
+            .room-page {
+                page-break-before: always;
+                page-break-inside: avoid;
+            }
+            
+            .photo-collage {
+                page-break-inside: avoid;
+            }
+            
+            .room-photos-layout {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* File input hidden */
+        .file-input {
+            display: none;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand-header">
+                <div class="brand-title heading-font">Prime Blueprint</div>
+                <div class="brand-subtitle body-font">Renovation Albums</div>
+            </div>
+            
+            <div class="rooms-section">
+                <div class="section-title">Project Rooms</div>
+                <div id="rooms-list"></div>
+                <button class="btn btn-primary add-room-btn" onclick="showAddRoomModal()">
+                    + Add Room
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="main-header">
+                <div class="tabs">
+                    <button class="tab active body-font" data-tab="edit" onclick="switchTab('edit')">Edit</button>
+                    <button class="tab body-font" data-tab="preview" onclick="switchTab('preview')">Album Preview</button>
+                </div>
+                
+                <div class="global-actions">
+                    <div class="export-dropdown">
+                        <button class="btn btn-primary dropdown-toggle" onclick="toggleExportDropdown()">
+                            Export ▼
+                        </button>
+                        <div class="dropdown-menu" id="export-dropdown">
+                            <button class="dropdown-item" onclick="exportPDF()">📄 Export PDF (A4 Booklet)</button>
+                            <button class="dropdown-item" onclick="exportFlipbook()">📖 Export Flipbook (HTML)</button>
+                            <button class="dropdown-item" onclick="exportJSON()">💾 Export JSON</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="importJSON()">Import JSON</button>
+                    <button class="btn btn-secondary theme-toggle" onclick="toggleTheme()">🌙</button>
+                </div>
+            </div>
+
+            <div class="main-body">
+                <!-- Edit Tab -->
+                <div id="edit-tab" class="tab-content">
+                    <div id="room-editor" class="room-editor"></div>
+                </div>
+
+                <!-- Preview Tab -->
+                <div id="preview-tab" class="tab-content hidden">
+                    <div id="album-preview" class="album-preview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+            <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">‹</button>
+            <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">›</button>
+            <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="add-room-modal">
+        <div class="modal">
+            <div class="modal-title heading-font">Add New Room</div>
+            <div class="form-group">
+                <label class="form-label">Room Name</label>
+                <input type="text" class="form-input" id="room-name-input" placeholder="e.g., Master Bedroom">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Room Type</label>
+                <select class="form-input" id="room-type-input">
+                    <option value="Bedroom">Bedroom</option>
+                    <option value="Living">Living</option>
+                    <option value="Kitchen">Kitchen</option>
+                    <option value="Dining">Dining</option>
+                    <option value="Bathroom">Bathroom</option>
+                    <option value="WC">WC</option>
+                    <option value="Hallway">Hallway</option>
+                    <option value="Office">Office</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideAddRoomModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addRoom()">Add Room</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal">
+            <div class="modal-title heading-font" id="confirm-title"></div>
+            <div id="confirm-message"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideConfirmModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirm-action" onclick="">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Input -->
+    <input type="file" class="file-input" id="file-input" multiple accept="image/*">
+    <input type="file" class="file-input" id="json-input" accept=".json">
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // State Management
+        let state = {
+            album: {
+                projectTitle: '',
+                address: '',
+                client: '',
+                rooms: []
+            },
+            currentRoom: null,
+            currentTab: 'edit',
+            lightboxIndex: 0,
+            lightboxPhotos: [],
+            theme: 'light'
+        };
+
+        // Room Type Detection
+        const roomTypeKeywords = {
+            'Bedroom': ['bed', 'bedroom', 'master', 'guest'],
+            'Living': ['living', 'lounge', 'family', 'great room'],
+            'Kitchen': ['kitchen', 'cook', 'culinary'],
+            'Dining': ['dining', 'eat', 'breakfast'],
+            'Bathroom': ['bath', 'bathroom', 'master bath', 'ensuite'],
+            'WC': ['wc', 'powder', 'half bath', 'guest bath'],
+            'Hallway': ['hall', 'hallway', 'entry', 'foyer', 'entrance'],
+            'Office': ['office', 'study', 'den', 'library', 'work']
+        };
+
+        // Room Blurb Templates
+        const roomBlurbs = {
+            'Bedroom': [
+                "A calm, layered palette with soft textures and controlled lighting creates a restful sanctuary. Bespoke joinery maximises storage while keeping sightlines clean.",
+                "Thoughtful material selection and refined proportions establish a serene retreat. Natural light filters gently through considered window treatments.",
+                "Understated luxury through tactile fabrics and warm timber accents. The design prioritizes rest and rejuvenation above all else."
+            ],
+            'Dining': [
+                "Warm timber and balanced illumination shape an intimate setting for gatherings. Proportions and circulation are refined to host comfortably.",
+                "Architectural lighting and rich materials create an elevated dining experience. The space encourages lingering conversation.",
+                "Careful attention to acoustics and sight lines ensures every seat feels special. Natural textures add warmth to formal occasions."
+            ],
+            'Bathroom': [
+                "Stone-inspired finishes and minimal hardware deliver a spa-level quiet. Task and ambient lighting are tuned to flatter skin tones and surfaces.",
+                "Premium materials and concealed storage create a serene daily ritual space. Every surface is selected for both beauty and durability.",
+                "Refined fixtures and considered proportions transform routine into luxury. The palette remains timeless and calming."
+            ],
+            'WC': [
+                "Stone-inspired finishes and minimal hardware deliver a spa-level quiet. Clean lines and premium fixtures create an elevated powder room experience.",
+                "Compact luxury with oversized impact. Rich materials and architectural lighting make the most of intimate proportions.",
+                "Thoughtful details and refined finishes ensure guests feel welcomed. The design maximizes visual space through careful material selection."
+            ],
+            'Kitchen': [
+                "Functional workflow wrapped in understated materials. Integrated lighting and durable finishes support daily use without visual noise.",
+                "Professional-grade functionality meets residential warmth. Hidden storage and seamless surfaces maintain the clean aesthetic.",
+                "Thoughtful zoning and premium appliances create an intuitive cooking environment. Materials age gracefully with daily use."
+            ],
+            'Living': [
+                "Neutral foundations with tactile accents. Furniture layout optimises conversation, daylight, and evening ambience.",
+                "Layered textures and considered proportions create a sophisticated gathering space. Natural materials add warmth to clean lines.",
+                "Flexible seating arrangements accommodate both intimate conversations and larger gatherings. The palette remains timeless and inviting."
+            ],
+            'Hallway': [
+                "A restrained welcome with durable surfaces and clear wayfinding. Light guides movement and expands perceived width.",
+                "Architectural details and considered lighting transform circulation into experience. Storage solutions remain invisible yet accessible.",
+                "Clean lines and rich materials create a sophisticated transition between spaces. Every surface serves both form and function."
+            ],
+            'Office': [
+                "Acoustic softness, controlled colour, and ergonomic layout enhance focus. Cable and storage management keep sightlines calm.",
+                "Natural light and considered furniture placement support long work sessions. Rich textures add warmth to the productive environment.",
+                "Thoughtful zoning separates focused work from video calls. Premium materials ensure the space feels both professional and comfortable."
+            ],
+            'Other': [
+                "Refined proportions and premium materials create a sophisticated space. Natural light and considered details enhance the architectural character.",
+                "Thoughtful material selection and careful detailing establish a cohesive design language. The space feels both timeless and contemporary.",
+                "Clean lines and rich textures come together in perfect balance. Every element serves the room's unique purpose with understated elegance."
+            ]
+        };
+
+        // Utility Functions
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function detectRoomType(name) {
+            const lowerName = name.toLowerCase();
+            for (const [type, keywords] of Object.entries(roomTypeKeywords)) {
+                if (keywords.some(keyword => lowerName.includes(keyword))) {
+                    return type;
+                }
+            }
+            return 'Other';
+        }
+
+        function generateBlurb(type) {
+            const templates = roomBlurbs[type] || roomBlurbs['Other'];
+            return templates[Math.floor(Math.random() * templates.length)];
+        }
+
+        function generateProjectCode() {
+            const year = new Date().getFullYear();
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = 'PB-' + year + '-';
+            for (let i = 0; i < 4; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function cleanFileName(filename) {
+            // Remove common device prefixes and clean up
+            let cleaned = filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+            cleaned = cleaned.replace(/^(IMG_|DSC_|PHOTO_|PXL_)/i, '');
+            
+            // If it looks like a date/number sequence, make it generic
+            if (/^\d{8}_\d{6}/.test(cleaned) || /^\d{4}-\d{2}-\d{2}/.test(cleaned)) {
+                return 'Photo';
+            }
+            
+            return cleaned || 'Photo';
+        }
+
+        // Storage Functions
+        function saveToStorage() {
+            try {
+                localStorage.setItem('prime-blueprint-album', JSON.stringify(state.album));
+                localStorage.setItem('prime-blueprint-settings', JSON.stringify({
+                    theme: state.theme
+                }));
+            } catch (e) {
+                showToast('Storage full! Export your data as JSON.', 'warning');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('prime-blueprint-album');
+                if (saved) {
+                    state.album = JSON.parse(saved);
+                }
+                
+                const settings = localStorage.getItem('prime-blueprint-settings');
+                if (settings) {
+                    const parsed = JSON.parse(settings);
+                    state.theme = parsed.theme || 'light';
+                    document.body.setAttribute('data-theme', state.theme);
+                }
+            } catch (e) {
+                console.error('Failed to load from storage:', e);
+            }
+        }
+
+        // Theme Functions
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', state.theme);
+            document.querySelector('.theme-toggle').textContent = state.theme === 'light' ? '🌙' : '☀️';
+            saveToStorage();
+        }
+
+        // Toast Functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Tab Functions
+        function switchTab(tab) {
+            state.currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('edit-tab').classList.toggle('hidden', tab !== 'edit');
+            document.getElementById('preview-tab').classList.toggle('hidden', tab !== 'preview');
+            
+            if (tab === 'preview') {
+                renderAlbumPreview();
+            }
+        }
+
+        // Room Management
+        function showAddRoomModal() {
+            document.getElementById('add-room-modal').classList.add('active');
+            document.getElementById('room-name-input').focus();
+        }
+
+        function hideAddRoomModal() {
+            document.getElementById('add-room-modal').classList.remove('active');
+            document.getElementById('room-name-input').value = '';
+            document.getElementById('room-type-input').value = 'Bedroom';
+        }
+
+        function addRoom() {
+            const name = document.getElementById('room-name-input').value.trim();
+            const type = document.getElementById('room-type-input').value;
+            
+            if (!name) {
+                showToast('Please enter a room name', 'error');
+                return;
+            }
+            
+            const room = {
+                id: generateId(),
+                name: name,
+                type: type,
+                before: [],
+                after: [],
+                blurb: generateBlurb(type),
+                meta: {
+                    durationWeeks: Math.floor(Math.random() * 7) + 6, // 6-12 weeks
+                    projectCode: generateProjectCode(),
+                    year: new Date().getFullYear()
+                }
+            };
+            
+            state.album.rooms.push(room);
+            state.currentRoom = room.id;
+            
+            hideAddRoomModal();
+            renderRoomsList();
+            renderRoomEditor();
+            saveToStorage();
+            showToast(`Added ${name}`);
+        }
+
+        function selectRoom(roomId) {
+            state.currentRoom = roomId;
+            renderRoomsList();
+            renderRoomEditor();
+        }
+
+        function deleteRoom(roomId) {
+            showConfirmModal(
+                'Delete Room',
+                'Are you sure you want to delete this room? All photos and data will be lost.',
+                () => {
+                    state.album.rooms = state.album.rooms.filter(r => r.id !== roomId);
+                    if (state.currentRoom === roomId) {
+                        state.currentRoom = state.album.rooms.length > 0 ? state.album.rooms[0].id : null;
+                    }
+                    renderRoomsList();
+                    renderRoomEditor();
+                    saveToStorage();
+                    showToast('Room deleted');
+                }
+            );
+        }
+
+        function moveRoom(roomId, direction) {
+            const index = state.album.rooms.findIndex(r => r.id === roomId);
+            if (index === -1) return;
+            
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            if (newIndex < 0 || newIndex >= state.album.rooms.length) return;
+            
+            [state.album.rooms[index], state.album.rooms[newIndex]] = 
+            [state.album.rooms[newIndex], state.album.rooms[index]];
+            
+            renderRoomsList();
+            saveToStorage();
+        }
+
+        function updateRoomField(roomId, field, value) {
+            const room = state.album.rooms.find(r => r.id === roomId);
+            if (!room) return;
+            
+            if (field.includes('.')) {
+                const [parent, child] = field.split('.');
+                room[parent][child] = value;
+            } else {
+                room[field] = value;
+            }
+            
+            saveToStorage();
+        }
+
+        function regenerateBlurb(roomId) {
+            const room = state.album.rooms.find(r => r.id === roomId);
+            if (!room) return;
+            
+            room.blurb = generateBlurb(room.type);
+            renderRoomEditor();
+            saveToStorage();
+            showToast('Generated new description');
+        }
+
+        // Photo Management
+        function handlePhotoUpload(roomId, section, files) {
+            const room = state.album.rooms.find(r => r.id === roomId);
+            if (!room) return;
+            
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const photo = {
+                            id: generateId(),
+                            name: cleanFileName(file.name),
+                            dataUrl: e.target.result,
+                            caption: cleanFileName(file.name)
+                        };
+                        
+                        room[section].push(photo);
+                        renderRoomEditor();
+                        saveToStorage();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function deletePhoto(roomId, section, photoId) {
+            const room = state.album.rooms.find(r => r.id === roomId);
+            if (!room) return;
+            
+            room[section] = room[section].filter(p => p.id !== photoId);
+            renderRoomEditor();
+            saveToStorage();
+        }
+
+        function updatePhotoCaption(roomId, section, photoId, caption) {
+            const room = state.album.rooms.find(r => r.id === roomId);
+            if (!room) return;
+            
+            const photo = room[section].find(p => p.id === photoId);
+            if (photo) {
+                photo.caption = caption;
+                saveToStorage();
+            }
+        }
+
+        // Lightbox Functions
+        function openLightbox(photos, index) {
+            state.lightboxPhotos = photos;
+            state.lightboxIndex = index;
+            updateLightboxImage();
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        function navigateLightbox(direction) {
+            state.lightboxIndex += direction;
+            if (state.lightboxIndex < 0) {
+                state.lightboxIndex = state.lightboxPhotos.length - 1;
+            } else if (state.lightboxIndex >= state.lightboxPhotos.length) {
+                state.lightboxIndex = 0;
+            }
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            const photo = state.lightboxPhotos[state.lightboxIndex];
+            if (photo) {
+                document.getElementById('lightbox-image').src = photo.dataUrl;
+            }
+        }
+
+        // Modal Functions
+        function showConfirmModal(title, message, action) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            document.getElementById('confirm-action').onclick = () => {
+                action();
+                hideConfirmModal();
+            };
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('active');
+        }
+
+        // Render Functions
+        function renderRoomsList() {
+            const container = document.getElementById('rooms-list');
+            
+            if (state.album.rooms.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏠</div>
+                        <div class="empty-state-title">No rooms yet</div>
+                        <div class="empty-state-text">Add your first room to get started</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = state.album.rooms.map((room, index) => `
+                <div class="room-item ${state.currentRoom === room.id ? 'active' : ''}" 
+                     onclick="selectRoom('${room.id}')">
+                    <div class="room-info">
+                        <div class="room-name">${room.name}</div>
+                        <div class="room-type">${room.type}</div>
+                    </div>
+                    <div class="room-actions">
+                        ${index > 0 ? `<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); moveRoom('${room.id}', 'up')">↑</button>` : ''}
+                        ${index < state.album.rooms.length - 1 ? `<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); moveRoom('${room.id}', 'down')">↓</button>` : ''}
+                        <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteRoom('${room.id}')">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRoomEditor() {
+            const container = document.getElementById('room-editor');
+            
+            if (!state.currentRoom) {
+                container.innerHTML = `
+                    <div class="onboarding">
+                        <div class="onboarding-title">Welcome to Prime Blueprint Albums</div>
+                        <div class="onboarding-text">
+                            Create beautiful before/after renovation albums. Start by adding a room, upload photos, 
+                            then preview and export your professional album as PDF.
+                        </div>
+                    </div>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📸</div>
+                        <div class="empty-state-title">Select a room to edit</div>
+                        <div class="empty-state-text">Choose a room from the sidebar or add a new one</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const room = state.album.rooms.find(r => r.id === state.currentRoom);
+            if (!room) return;
+            
+            container.innerHTML = `
+                <div class="room-title-section">
+                    <h1 class="room-title heading-font">${room.name}</h1>
+                    <div class="room-meta">
+                        <span class="meta-badge">Duration: ${room.meta.durationWeeks - 1}–${room.meta.durationWeeks + 1} weeks</span>
+                        <span class="meta-badge">Project: ${room.meta.projectCode}</span>
+                        <span class="meta-badge">${room.meta.year}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Room Name</label>
+                    <input type="text" class="form-input" value="${room.name}" 
+                           onchange="updateRoomField('${room.id}', 'name', this.value); renderRoomsList();">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Room Type</label>
+                    <select class="form-input" value="${room.type}" 
+                            onchange="updateRoomField('${room.id}', 'type', this.value);">
+                        <option value="Bedroom" ${room.type === 'Bedroom' ? 'selected' : ''}>Bedroom</option>
+                        <option value="Living" ${room.type === 'Living' ? 'selected' : ''}>Living</option>
+                        <option value="Kitchen" ${room.type === 'Kitchen' ? 'selected' : ''}>Kitchen</option>
+                        <option value="Dining" ${room.type === 'Dining' ? 'selected' : ''}>Dining</option>
+                        <option value="Bathroom" ${room.type === 'Bathroom' ? 'selected' : ''}>Bathroom</option>
+                        <option value="WC" ${room.type === 'WC' ? 'selected' : ''}>WC</option>
+                        <option value="Hallway" ${room.type === 'Hallway' ? 'selected' : ''}>Hallway</option>
+                        <option value="Office" ${room.type === 'Office' ? 'selected' : ''}>Office</option>
+                        <option value="Other" ${room.type === 'Other' ? 'selected' : ''}>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Description 
+                        <button class="btn btn-small btn-secondary" onclick="regenerateBlurb('${room.id}')">
+                            Regenerate Copy
+                        </button>
+                    </label>
+                    <textarea class="form-input form-textarea" 
+                              onchange="updateRoomField('${room.id}', 'blurb', this.value)">${room.blurb}</textarea>
+                </div>
+
+                ${renderPhotoSection(room, 'before', 'Before Photos')}
+                ${renderPhotoSection(room, 'after', 'After Photos')}
+            `;
+        }
+
+        function renderPhotoSection(room, section, title) {
+            return `
+                <div class="photo-section">
+                    <h2 class="photo-section-title heading-font">${title}</h2>
+                    
+                    <div class="upload-zone" 
+                         onclick="document.getElementById('file-input').click(); window.currentUploadSection = '${section}';"
+                         ondrop="handleDrop(event, '${room.id}', '${section}')"
+                         ondragover="handleDragOver(event)"
+                         ondragenter="handleDragEnter(event)"
+                         ondragleave="handleDragLeave(event)">
+                        <div class="upload-text">Drop photos here or click to browse</div>
+                        <div class="upload-subtext">Supports JPG, PNG, WebP</div>
+                    </div>
+
+                    ${room[section].length > 0 ? `
+                        <div class="photo-grid">
+                            ${room[section].map((photo, index) => `
+                                <div class="photo-item">
+                                    <div class="photo-actions">
+                                        <button class="btn btn-small btn-danger" 
+                                                onclick="deletePhoto('${room.id}', '${section}', '${photo.id}')">×</button>
+                                    </div>
+                                    <div class="photo-frame">
+                                        <img class="photo-image" src="${photo.dataUrl}" alt="${photo.caption}"
+                                             onclick="openLightbox(${JSON.stringify(room[section]).replace(/"/g, '&quot;')}, ${index})">
+                                    </div>
+                                    <div class="photo-caption">
+                                        <input type="text" value="${photo.caption}" 
+                                               onchange="updatePhotoCaption('${room.id}', '${section}', '${photo.id}', this.value)"
+                                               placeholder="Photo caption">
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderAlbumPreview() {
+            const container = document.getElementById('album-preview');
+            
+            container.innerHTML = `
+                ${renderCoverPage()}
+                ${renderTableOfContents()}
+                ${state.album.rooms.map(room => renderRoomPage(room)).join('')}
+            `;
+        }
+
+        function renderCoverPage() {
+            return `
+                <div class="cover-page">
+                    <h1 class="cover-title heading-font">${state.album.projectTitle || 'Renovation Portfolio'}</h1>
+                    <div class="cover-subtitle body-font">${state.album.address || 'Prime Blueprint Project'}</div>
+                    ${state.album.client ? `<div class="cover-subtitle body-font">Client: ${state.album.client}</div>` : ''}
+                    <div class="cover-subtitle body-font">${new Date().getFullYear()}</div>
+                    <div class="cover-brand heading-font">Designed & Delivered by Prime Blueprint</div>
+                </div>
+            `;
+        }
+
+        function renderTableOfContents() {
+            if (state.album.rooms.length === 0) return '';
+            
+            return `
+                <div class="toc-page">
+                    <h2 class="toc-title heading-font">Table of Contents</h2>
+                    ${state.album.rooms.map((room, index) => `
+                        <div class="toc-item">
+                            <span>${room.name}</span>
+                            <span>${index + 1}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderRoomPage(room) {
+            return `
+                <div class="room-page">
+                    <h1 class="room-page-title heading-font">${room.name}</h1>
+                    
+                    ${(room.before.length > 0 || room.after.length > 0) ? `
+                        <div class="room-photos-layout">
+                            <div class="photos-column">
+                                <h3 class="column-title body-font">Before</h3>
+                                ${room.before.length > 0 ? `
+                                    <div class="photo-collage">
+                                        ${room.before.map(photo => `
+                                            <img class="collage-photo" src="${photo.dataUrl}" alt="${photo.caption}">
+                                        `).join('')}
+                                    </div>
+                                ` : '<div class="empty-state">No before photos</div>'}
+                            </div>
+                            
+                            <div class="photos-column">
+                                <h3 class="column-title body-font">After</h3>
+                                ${room.after.length > 0 ? `
+                                    <div class="photo-collage">
+                                        ${room.after.map(photo => `
+                                            <img class="collage-photo" src="${photo.dataUrl}" alt="${photo.caption}">
+                                        `).join('')}
+                                    </div>
+                                ` : '<div class="empty-state">No after photos</div>'}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="room-description body-font">${room.blurb}</div>
+                    
+                    <div class="room-footer">
+                        <span>Duration: ${room.meta.durationWeeks - 1}–${room.meta.durationWeeks + 1} weeks</span>
+                        <span>${room.meta.projectCode} • ${room.meta.year}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Drag and Drop Functions
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleDragEnter(event) {
+            event.preventDefault();
+            event.target.closest('.upload-zone').classList.add('drag-over');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            if (!event.target.closest('.upload-zone').contains(event.relatedTarget)) {
+                event.target.closest('.upload-zone').classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(event, roomId, section) {
+            event.preventDefault();
+            event.target.closest('.upload-zone').classList.remove('drag-over');
+            
+            const files = event.dataTransfer.files;
+            handlePhotoUpload(roomId, section, files);
+        }
+
+        // Export/Import Functions
+        function exportPDF() {
+            if (state.currentTab !== 'preview') {
+                switchTab('preview');
+                setTimeout(() => window.print(), 500);
+            } else {
+                window.print();
+            }
+            toggleExportDropdown();
+        }
+
+        function exportJSON() {
+            const dataStr = JSON.stringify(state.album, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `prime-blueprint-${Date.now()}.json`;
+            link.click();
+            
+            showToast('Album exported as JSON');
+            toggleExportDropdown();
+        }
+
+        function importJSON() {
+            document.getElementById('json-input').click();
+        }
+
+        function toggleExportDropdown() {
+            const dropdown = document.getElementById('export-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function exportFlipbook() {
+            if (state.album.rooms.length === 0) {
+                showToast('Please add some rooms before exporting', 'error');
+                return;
+            }
+            
+            const html = buildFlipbookHTML(state.album);
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${state.album.projectTitle || 'prime-blueprint'}-flipbook.html`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            
+            showToast('Flipbook exported successfully');
+            toggleExportDropdown();
+        }
+
+        // Flipbook HTML Generation
+        function buildFlipbookHTML(album) {
+            const albumData = JSON.stringify(album);
+            
+            const htmlStart = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${album.projectTitle || 'Prime Blueprint'} - Flipbook</title>
+    <style>
+        /* CSS Variables - Luxury Color Palette */
+        :root {
+            --ink: #1C1C1C;
+            --stone: #F4F1EC;
+            --taupe: #C6B8A6;
+            --clay: #9C8363;
+            --moss: #6F7B6B;
+            --accent: #C8A96B;
+            
+            /* Theme variables */
+            --bg-primary: var(--stone);
+            --bg-secondary: #ffffff;
+            --text-primary: var(--ink);
+            --text-secondary: var(--clay);
+            --border-light: rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: var(--stone);
+            --text-secondary: var(--taupe);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Typography */
+        .heading-font {
+            font-family: "Garamond", "Palatino Linotype", "Times New Roman", serif;
+            letter-spacing: -0.02em;
+        }
+
+        .body-font {
+            font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Flipbook Container */
+        .flipbook-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        /* Header */
+        .flipbook-header {
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .project-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b8965a;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--taupe);
+            color: white;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Book Viewer */
+        .book-viewer {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .book-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1.414 / 1; /* A5 landscape ratio */
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            background: white;
+            overflow: hidden;
+        }
+
+        .book-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            padding: 3rem 2rem 2rem;
+            opacity: 0;
+            transform: rotateY(-180deg);
+            transform-origin: left center;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+        }
+
+        .book-page.current {
+            opacity: 1;
+            transform: rotateY(0deg);
+            z-index: 10;
+        }
+
+        .book-page.next {
+            opacity: 1;
+            transform: rotateY(-15deg);
+            z-index: 5;
+        }
+
+        .book-page.prev {
+            opacity: 0.7;
+            transform: rotateY(15deg);
+            z-index: 1;
+        }
+
+        /* Reduced motion fallback */
+        @media (prefers-reduced-motion: reduce) {
+            .book-page {
+                transition: opacity 0.3s ease;
+                transform: none !important;
+            }
+            
+            .book-page.current {
+                opacity: 1;
+            }
+            
+            .book-page:not(.current) {
+                opacity: 0;
+            }
+        }
+
+        /* Page Content */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--clay);
+            margin-bottom: 1rem;
+        }
+
+        .page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .photo-grid {
+            flex: 1;
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .photo-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .photo-grid.double {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .photo-grid.triple {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .photo-grid.quad {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .photo-item {
+            background: var(--stone);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .page-description {
+            max-height: 3em;
+            overflow: hidden;
+            font-style: italic;
+            color: var(--clay);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-light);
+            padding-top: 1rem;
+        }
+
+        /* Navigation */
+        .book-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 20;
+        }
+
+        .book-nav:hover {
+            background: white;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .book-nav:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .nav-prev {
+            left: -24px;
+        }
+
+        .nav-next {
+            right: -24px;
+        }
+
+        .nav-prev:disabled,
+        .nav-next:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Controls */
+        .flipbook-controls {
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            min-width: 100px;
+        }
+
+        .page-scrubber {
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .scrubber-input {
+            width: 100%;
+            height: 4px;
+            background: var(--border-light);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .scrubber-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .scrubber-input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Share Panel */
+        .share-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 300px;
+            box-shadow: var(--shadow-hover);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+        }
+
+        .share-panel.show {
+            transform: translateX(0);
+        }
+
+        .share-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .share-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .share-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            background: var(--accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            transition: transform 0.3s ease;
+            z-index: 1100;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .flipbook-header {
+                padding: 1rem;
+            }
+            
+            .book-viewer {
+                padding: 1rem;
+            }
+            
+            .book-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+            
+            .nav-prev {
+                left: -20px;
+            }
+            
+            .nav-next {
+                right: -20px;
+            }
+            
+            .flipbook-controls {
+                padding: 1rem;
+            }
+            
+            .control-group {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .flipbook-header,
+            .flipbook-controls,
+            .book-nav,
+            .share-panel,
+            .toast {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                color: var(--ink);
+            }
+            
+            .book-viewer {
+                padding: 0;
+                perspective: none;
+            }
+            
+            .book-container {
+                box-shadow: none;
+                max-width: none;
+                width: 100%;
+                height: auto;
+                aspect-ratio: auto;
+            }
+            
+            .book-page {
+                position: static;
+                opacity: 1 !important;
+                transform: none !important;
+                page-break-before: always;
+                page-break-inside: avoid;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .book-page:first-child {
+                page-break-before: auto;
+            }
+            
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="flipbook-container">
+        <!-- Header -->
+        <div class="flipbook-header">
+            <div class="brand-info">
+                <div class="brand-logo heading-font">Prime Blueprint</div>
+                <div class="project-info">
+                    <div>${album.projectTitle || 'Renovation Portfolio'}</div>
+                    ${album.address ? `<div>${album.address}</div>` : ''}
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="Toggle Theme">
+                    <span id="theme-icon">🌙</span>
+                </button>
+                <button class="btn btn-secondary" onclick="exportJSON()">💾 JSON</button>
+                <button class="btn btn-secondary" onclick="exportPDF()">📄 PDF</button>
+                <button class="btn btn-primary" onclick="toggleSharePanel()">📤 Share</button>
+            </div>
+        </div>
+
+        <!-- Book Viewer -->
+        <div class="book-viewer">
+            <div class="book-container" id="book-container">
+                <!-- Pages will be generated here -->
+            </div>
+            
+            <button class="book-nav nav-prev" onclick="prevPage()" id="prev-btn">‹</button>
+            <button class="book-nav nav-next" onclick="nextPage()" id="next-btn">›</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="flipbook-controls">
+            <div class="page-info">
+                <span id="page-current">1</span> / <span id="page-total">1</span>
+            </div>
+            
+            <div class="page-scrubber">
+                <input type="range" class="scrubber-input" id="page-scrubber" 
+                       min="1" max="1" value="1" oninput="goToPage(this.value)">
+            </div>
+            
+            <div class="control-group">
+                <button class="btn btn-secondary btn-icon" onclick="goToPage(1)" title="First Page">⏮</button>
+                <button class="btn btn-secondary btn-icon" onclick="goToPage(state.totalPages)" title="Last Page">⏭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Panel -->
+    <div class="share-panel" id="share-panel">
+        <button class="share-close" onclick="toggleSharePanel()">✕</button>
+        <div class="share-title">Share This Album</div>
+        <div class="share-text">
+            This flipbook is a single HTML file that works offline. You can share it via email, 
+            messaging apps, or cloud storage. Recipients can view it in any modern browser.
+        </div>
+        <div class="control-group">
+            <button class="btn btn-secondary" onclick="copyShareText()">📋 Copy Info</button>
+            ${navigator.share ? '<button class="btn btn-primary" onclick="shareNative()">📤 Share</button>' : ''}
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Embedded Album Data
+        const albumData = ${albumData};
+        
+        // State
+        let state = {
+            currentPage: 1,
+            totalPages: 1,
+            theme: 'light',
+            pages: []
+        };
+
+        // Utility Functions
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', state.theme);
+            document.getElementById('theme-icon').textContent = state.theme === 'light' ? '🌙' : '☀️';
+        }
+
+        function toggleSharePanel() {
+            document.getElementById('share-panel').classList.toggle('show');
+        }
+
+        function copyShareText() {
+            const text = "Check out this renovation flipbook! This HTML file works offline in any browser.";
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Share text copied!');
+            }).catch(() => {
+                showToast('Could not copy to clipboard');
+            });
+        }
+
+        function shareNative() {
+            if (navigator.share) {
+                navigator.share({
+                    title: albumData.projectTitle || 'Prime Blueprint Album',
+                    text: 'Check out this renovation flipbook!',
+                    url: window.location.href
+                });
+            }
+        }
+
+        function exportJSON() {
+            const dataStr = JSON.stringify(albumData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'album.json';
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast('JSON exported!');
+        }
+
+        function exportPDF() {
+            showToast('Preparing PDF...');
+            setTimeout(() => window.print(), 500);
+        }
+
+        // Page Generation
+        function generatePages() {
+            const pages = [];
+            
+            // Cover page
+            pages.push({
+                type: 'cover',
+                title: albumData.projectTitle || 'Renovation Portfolio',
+                subtitle: albumData.address || '',
+                client: albumData.client || '',
+                year: new Date().getFullYear()
+            });
+
+            // Table of contents
+            if (albumData.rooms.length > 0) {
+                pages.push({
+                    type: 'toc',
+                    title: 'Table of Contents',
+                    rooms: albumData.rooms
+                });
+            }
+
+            // Room pages
+            albumData.rooms.forEach(room => {
+                const allPhotos = [...(room.before || []), ...(room.after || [])];
+                
+                if (allPhotos.length === 0) {
+                    // Text-only page
+                    pages.push({
+                        type: 'room',
+                        room: room,
+                        photos: [],
+                        layout: 'text'
+                    });
+                } else if (allPhotos.length === 1) {
+                    pages.push({
+                        type: 'room',
+                        room: room,
+                        photos: [allPhotos[0]],
+                        layout: 'single'
+                    });
+                } else if (allPhotos.length === 2) {
+                    pages.push({
+                        type: 'room',
+                        room: room,
+                        photos: allPhotos.slice(0, 2),
+                        layout: 'double'
+                    });
+                } else if (allPhotos.length === 3) {
+                    pages.push({
+                        type: 'room',
+                        room: room,
+                        photos: allPhotos.slice(0, 3),
+                        layout: 'triple'
+                    });
+                } else {
+                    // Split into multiple pages
+                    for (let i = 0; i < allPhotos.length; i += 4) {
+                        const pagePhotos = allPhotos.slice(i, i + 4);
+                        pages.push({
+                            type: 'room',
+                            room: room,
+                            photos: pagePhotos,
+                            layout: pagePhotos.length <= 2 ? 'double' : 'quad'
+                        });
+                    }
+                }
+            });
+
+            return pages;
+        }
+
+        function renderPage(pageData, index) {
+            switch (pageData.type) {
+                case 'cover':
+                    return renderCoverPage(pageData);
+                case 'toc':
+                    return renderTocPage(pageData);
+                case 'room':
+                    return renderRoomPage(pageData, index);
+                default:
+                    return '<div class="page-content">Unknown page type</div>';
+            }
+        }
+
+        function renderCoverPage(page) {
+            return \`
+                <div class="page-header">
+                    <h1 class="page-title heading-font">\${page.title}</h1>
+                    \${page.subtitle ? \`<div class="page-subtitle body-font">\${page.subtitle}</div>\` : ''}
+                    \${page.client ? \`<div class="page-subtitle body-font">Client: \${page.client}</div>\` : ''}
+                    <div class="page-subtitle body-font">\${page.year}</div>
+                </div>
+                <div class="page-content">
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; color: var(--accent); font-size: 1.25rem; font-weight: 600;" class="heading-font">
+                            Designed & Delivered by Prime Blueprint
+                        </div>
+                    </div>
+                </div>
+            \`;
+        }
+
+        function renderTocPage(page) {
+            return \`
+                <div class="page-header">
+                    <h1 class="page-title heading-font">\${page.title}</h1>
+                </div>
+                <div class="page-content">
+                    <div style="flex: 1;">
+                        \${page.rooms.map((room, index) => \`
+                            <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                                <span>\${room.name}</span>
+                                <span>\${index + 3}</span>
+                            </div>
+                        \`).join('')}
+                    </div>
+                </div>
+            \`;
+        }
+
+        function renderRoomPage(page, pageIndex) {
+            const room = page.room;
+            const photos = page.photos;
+            const layout = page.layout;
+            
+            return \`
+                <div class="page-header">
+                    <h1 class="page-title heading-font">\${room.name}</h1>
+                    <div class="page-subtitle body-font">\${room.type}</div>
+                </div>
+                <div class="page-content">
+                    \${photos.length > 0 ? \`
+                        <div class="photo-grid \${layout}">
+                            \${photos.map(photo => \`
+                                <div class="photo-item">
+                                    <img class="photo-image" src="\${photo.dataUrl}" alt="\${photo.caption || photo.name}">
+                                </div>
+                            \`).join('')}
+                        </div>
+                    \` : ''}
+                    
+                    \${room.blurb ? \`<div class="page-description body-font">\${room.blurb}</div>\` : ''}
+                </div>
+                <div class="page-footer">
+                    <span>Duration: \${room.meta.durationWeeks - 1}–\${room.meta.durationWeeks + 1} weeks</span>
+                    <span>\${room.meta.projectCode} • \${room.meta.year}</span>
+                </div>
+            \`;
+        }
+
+        // Navigation
+        function updatePageDisplay() {
+            const pages = document.querySelectorAll('.book-page');
+            pages.forEach((page, index) => {
+                page.classList.remove('current', 'next', 'prev');
+                
+                if (index === state.currentPage - 1) {
+                    page.classList.add('current');
+                } else if (index === state.currentPage) {
+                    page.classList.add('next');
+                } else if (index === state.currentPage - 2) {
+                    page.classList.add('prev');
+                }
+            });
+
+            // Update controls
+            document.getElementById('page-current').textContent = state.currentPage;
+            document.getElementById('page-scrubber').value = state.currentPage;
+            
+            document.getElementById('prev-btn').disabled = state.currentPage <= 1;
+            document.getElementById('next-btn').disabled = state.currentPage >= state.totalPages;
+        }
+
+        function nextPage() {
+            if (state.currentPage < state.totalPages) {
+                state.currentPage++;
+                updatePageDisplay();
+            }
+        }
+
+        function prevPage() {
+            if (state.currentPage > 1) {
+                state.currentPage--;
+                updatePageDisplay();
+            }
+        }
+
+        function goToPage(pageNum) {
+            const page = parseInt(pageNum);
+            if (page >= 1 && page <= state.totalPages) {
+                state.currentPage = page;
+                updatePageDisplay();
+            }
+        }
+
+        // Touch/Mouse Events
+        let startX = 0;
+        let startY = 0;
+        let isSwaping = false;
+
+        function handleTouchStart(e) {
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            isSwaping = true;
+        }
+
+        function handleTouchEnd(e) {
+            if (!isSwaping) return;
+            
+            const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+            
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            
+            // Only process horizontal swipes
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0) {
+                    prevPage();
+                } else {
+                    nextPage();
+                }
+            }
+            
+            isSwaping = false;
+        }
+
+        // Keyboard Events
+        function handleKeydown(e) {
+            switch (e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    prevPage();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextPage();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    goToPage(1);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    goToPage(state.totalPages);
+                    break;
+                case 'Escape':
+                    document.getElementById('share-panel').classList.remove('show');
+                    break;
+            }
+        }
+
+        // Initialization
+        function init() {
+            state.pages = generatePages();
+            state.totalPages = state.pages.length;
+            
+            // Generate page HTML
+            const container = document.getElementById('book-container');
+            container.innerHTML = state.pages.map((page, index) => \`
+                <div class="book-page body-font" id="page-\${index + 1}">
+                    \${renderPage(page, index + 1)}
+                </div>
+            \`).join('');
+            
+            // Update controls
+            document.getElementById('page-total').textContent = state.totalPages;
+            document.getElementById('page-scrubber').max = state.totalPages;
+            
+            // Show first page
+            updatePageDisplay();
+            
+            // Add event listeners
+            const bookContainer = document.getElementById('book-container');
+            
+            // Touch events
+            bookContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+            bookContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+            
+            // Mouse events
+            bookContainer.addEventListener('mousedown', handleTouchStart);
+            bookContainer.addEventListener('mouseup', handleTouchEnd);
+            
+            // Keyboard events
+            document.addEventListener('keydown', handleKeydown);
+            
+            // Close share panel when clicking outside
+            document.addEventListener('click', (e) => {
+                const sharePanel = document.getElementById('share-panel');
+                if (!sharePanel.contains(e.target) && !e.target.matches('[onclick*="toggleSharePanel"]')) {
+                    sharePanel.classList.remove('show');
+                }
+            });
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
