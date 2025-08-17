@@ -1,59 +1,52 @@
+:root {
+  --ink:#1C1C1C;
+  --stone:#F3F0EA;
+  --taupe:#C7B8A6;
+  --moss:#6F7B6B;
+  --gold:#C8A96B;
+  --accent:#E08A2E;
+  --gutter-inner:16mm;
+  --gutter-outer:10mm;
+}
+
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f3ef;
+  font:16px/1.6 "Inter","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;
+  background:var(--stone);
+  margin:0;
+  color:var(--ink);
 }
 
-#app {
-  display: flex;
-  height: 100vh;
+.sidebar {
+  width:300px;
+  padding:20px;
+  background:#fff;
+  box-shadow:0 0 5px rgba(0,0,0,.1);
 }
 
-aside {
-  width: 280px;
-  background: #fff;
-  border-right: 1px solid #ccc;
-  padding: 1rem;
+button {
+  background:var(--gold);
+  color:#fff;
+  border:none;
+  padding:10px 16px;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:8px;
+}
+button:hover {
+  background:#b39158;
 }
 
-aside h2 {
-  margin-top: 0;
-  font-size: 20px;
+.rooms .room {
+  border:1px solid var(--taupe);
+  padding:8px;
+  margin:8px 0;
+  border-radius:4px;
 }
-
-aside p {
-  font-size: 14px;
-  color: #777;
-}
-
-aside input {
-  display: block;
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.4rem;
-}
-
-aside button {
-  display: block;
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.6rem;
-  border: none;
-  background: #000;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-main {
-  flex: 1;
-  padding: 1rem;
-}
-
-.toolbar {
-  margin-bottom: 1rem;
-}
-
-.toolbar button {
-  margin-right: 0.5rem;
+.rooms input,
+.rooms textarea {
+  width:100%;
+  margin:4px 0;
+  padding:6px;
+  border:1px solid #ccc;
+  border-radius:4px;
 }
