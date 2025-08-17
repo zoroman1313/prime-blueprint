@@ -4,66 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Prime Blueprint — A5 Landscape Booklet Builder</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand">Prime Blueprint <span class="sub">Luxury Renovation Album — A5 Landscape</span></div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Prime Blueprint <span class="sub">Luxury Renovation Album — A5 Landscape</span></div>
 
-    <div class="group">
-      <div class="label">Project</div>
-      <input id="pTitle" class="input" placeholder="Project Title"/>
-      <input id="pAddr" class="input" placeholder="Address" style="margin-top:6px"/>
-      <div class="row" style="margin-top:6px">
-        <input id="pClient" class="input" placeholder="Client"/>
-        <input id="pDate" class="input" placeholder="Date"/>
+      <div class="group">
+        <div class="label">Project</div>
+        <input id="pTitle" class="input" placeholder="Project Title"/>
+        <input id="pAddr"  class="input" placeholder="Address" style="margin-top:6px"/>
+        <div class="row" style="margin-top:6px">
+          <input id="pClient" class="input" placeholder="Client"/>
+          <input id="pDate"   class="input" placeholder="Date"/>
+        </div>
       </div>
-    </div>
 
-    <div class="group">
-      <div class="label">Rooms / Spaces</div>
-      <div id="roomList" class="room-list"></div>
-      <div class="row" style="margin-top:8px">
-        <button class="button gold" id="addRoom">+ Add Room</button>
-        <button class="button" id="expJSON">Export JSON</button>
-        <button class="button" id="impJSON">Import JSON</button>
+      <div class="group">
+        <div class="label">Rooms / Spaces</div>
+        <div id="roomList" class="room-list"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="button gold" id="addRoom">+ Add Room</button>
+          <button class="button" id="expJSON">Export JSON</button>
+          <button class="button" id="impJSON">Import JSON</button>
+        </div>
       </div>
-    </div>
 
-    <div class="group">
-      <div class="label">Exports</div>
-      <div class="row">
-        <button class="button primary" id="expPDF">Export PDF</button>
-        <button class="button" id="expFlip">Export Flipbook (HTML)</button>
+      <div class="group">
+        <div class="label">Exports</div>
+        <div class="row">
+          <button class="button primary" id="expPDF">Export PDF</button>
+          <button class="button" id="expFlip">Export Flipbook (HTML)</button>
+        </div>
+        <div class="small" style="opacity:.8;margin-top:6px">
+          Print A4 landscape · Duplex short-edge · 100% scale · Background ON
+        </div>
       </div>
-      <div class="small" style="opacity:.8;margin-top:6px">Print A4 landscape · Duplex short-edge · 100% scale · Background ON</div>
-    </div>
-  </aside>
+    </aside>
 
-  <main class="main">
-    <div class="tabs">
-      <button class="tab active" data-tab="edit">Edit</button>
-      <button class="tab" data-tab="preview">Album Preview</button>
-    </div>
+    <main class="main">
+      <div class="tabs">
+        <button class="tab active" data-tab="edit">Edit</button>
+        <button class="tab" data-tab="preview">Album Preview</button>
+      </div>
 
-    <div class="toolbar">
-      <button class="button" id="regenCopy">Regenerate Copy</button>
-      <button class="button" id="recalc">Rebuild Pages</button>
-      <button class="button" id="save">Save</button>
-    </div>
+      <div class="toolbar">
+        <button class="button" id="regenCopy">Regenerate Copy</button>
+        <button class="button" id="recalc">Rebuild Pages</button>
+        <button class="button" id="save">Save</button>
+      </div>
 
-    <div class="grid two card editor" id="editor"></div>
-    <div id="preview" class="grid" style="display:none"></div>
+      <div class="grid two card editor" id="editor"></div>
+      <div id="preview" class="grid" style="display:none"></div>
 
-    <!-- چاپ A4 (imposition) -->
-    <div class="print-sheets" id="sheets"></div>
-  </main>
-</div>
+      <!-- Print-only sheets will be injected here -->
+      <div class="print-sheets" id="sheets"></div>
+    </main>
+  </div>
 
-<div class="lightbox" id="lightbox"><img alt=""/></div>
-<div class="toast" id="toast">Saved</div>
+  <div class="lightbox" id="lightbox"><img alt=""/></div>
+  <div class="toast" id="toast">Saved</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
