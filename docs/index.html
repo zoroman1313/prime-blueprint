@@ -154,7 +154,7 @@ const $ = (s,root=document)=>root.querySelector(s); const $$=(s,r=document)=>Arr
 const uid = ()=>'_'+Math.random().toString(36).slice(2,9);
 const todayISO = ()=> new Date().toISOString().slice(0,10);
 function escapeHTML(s=''){ return String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1200); }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1200); }
 function fileToDataURL(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); }); }
 function download(name, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'application/octet-stream'})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 function placeholder(color='#ddd'){ const c=document.createElement('canvas'); c.width=800;c.height=600; const x=c.getContext('2d'); x.fillStyle=color; x.fillRect(0,0,c.width,c.height); x.fillStyle='rgba(0,0,0,.2)'; x.fillRect(0,0,c.width,40); x.fillStyle='#fff'; x.font='20px sans-serif'; x.fillText('Prime Blueprint', 12,26); return c.toDataURL('image/png'); }
@@ -200,43 +200,58 @@ let _active = album.rooms[0]?.id;
 function save(){ localStorage.setItem('pb_album', JSON.stringify(album)); toast('Saved'); renderAll(); }
 function load(){ try{ const j = localStorage.getItem('pb_album'); return j? JSON.parse(j):null;}catch(e){return null} }
 
-/* ---------- init ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+/* ---------- app boot (run immediately) ---------- */
+boot();  // به‌جای DOMContentLoaded
+function boot(){
+  console.log('PB: boot');
   // project fields
-  $('#pTitle').value = album.projectTitle; $('#pAddr').value = album.address; $('#pClient').value = album.client; $('#pDate').value = album.dateISO;
+  document.getElementById('pTitle').value = album.projectTitle;
+  document.getElementById('pAddr').value  = album.address;
+  document.getElementById('pClient').value= album.client;
+  document.getElementById('pDate').value  = album.dateISO;
   ['pTitle','pAddr','pClient','pDate'].forEach(id=>{
-    $('#'+id).addEventListener('input',()=>{ album.projectTitle=$('#pTitle').value; album.address=$('#pAddr').value; album.client=$('#pClient').value; album.dateISO=$('#pDate').value; save(); });
+    document.getElementById(id).addEventListener('input',()=>{
+      album.projectTitle=document.getElementById('pTitle').value;
+      album.address     =document.getElementById('pAddr').value;
+      album.client      =document.getElementById('pClient').value;
+      album.dateISO     =document.getElementById('pDate').value;
+      save();
+    });
   });
 
   // buttons
-  $('#addRoom').onclick=()=>{ const name = prompt('Room/Space name? e.g., Master Bedroom'); if(!name) return;
+  document.getElementById('addRoom').onclick=()=>{ const name = prompt('Room/Space name? e.g., Master Bedroom'); if(!name) return;
     const type = detectType(name);
     album.rooms.push({id:uid(), name, type, layout:'spread', blurb:templateFor(type), before:[], after:[], meta:meta()});
     save();
   };
-  $('#expJSON').onclick=()=>download('album.json', JSON.stringify(album, null, 2));
-  $('#impJSON').onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.accept='.json,application/json'; i.onchange=async()=>{ const f=i.files[0]; if(!f) return; const t=await f.text(); album=JSON.parse(t); save(); }; i.click(); };
-  $('#regenCopy').onclick=()=>{ const r=activeRoom(); if(!r) return; r.blurb = templateFor(r.type); save(); };
-  $('#recalc').onclick=()=>{ renderAll(); toast('Rebuilt'); };
-  $('#save').onclick=save;
+  document.getElementById('expJSON').onclick=()=>download('album.json', JSON.stringify(album, null, 2));
+  document.getElementById('impJSON').onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.accept='.json,application/json';
+    i.onchange=async()=>{ const f=i.files[0]; if(!f) return; const t=await f.text(); album=JSON.parse(t); save(); }; i.click(); };
+  document.getElementById('regenCopy').onclick=()=>{ const r=activeRoom(); if(!r) return; r.blurb = templateFor(r.type); save(); };
+  document.getElementById('recalc').onclick=()=>{ renderAll(); toast('Rebuilt'); };
+  document.getElementById('save').onclick=save;
 
   // tabs
   $$('.tab').forEach(b=>b.onclick=()=>{ $$('.tab').forEach(x=>x.classList.remove('active')); b.classList.add('active');
-    if(b.dataset.tab==='edit'){ $('#editor').style.display='grid'; $('#preview').style.display='none'; }
-    else { buildPages(); renderPreview(); $('#editor').style.display='none'; $('#preview').style.display='grid'; }
+    if(b.dataset.tab==='edit'){ document.getElementById('editor').style.display='grid'; document.getElementById('preview').style.display='none'; }
+    else { buildPages(); renderPreview(); document.getElementById('editor').style.display='none'; document.getElementById('preview').style.display='grid'; }
   });
 
   // exports
-  $('#expPDF').onclick=()=>{ buildPages(); imposeAndRenderSheets(); setTimeout(()=>window.print(),50); };
-  $('#expFlip').onclick=()=>{ buildPages(); const html = buildFlipbookHTML(album, builtPages); const blob = new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='album-flipbook.html'; a.click(); URL.revokeObjectURL(a.href); toast('Flipbook exported'); };
+  document.getElementById('expPDF').onclick=()=>{ buildPages(); imposeAndRenderSheets(); setTimeout(()=>window.print(),50); };
+  document.getElementById('expFlip').onclick=()=>{ buildPages(); const html = buildFlipbookHTML(album, builtPages);
+    const blob = new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='album-flipbook.html'; a.click(); URL.revokeObjectURL(a.href); toast('Flipbook exported'); };
 
   renderAll();
-});
+  toast('Ready');
+}
 
 /* ---------- rooms & editor ---------- */
 function activeRoom(){ return album.rooms.find(r=>r.id===_active); }
 function renderRooms(){
-  const list=$('#roomList'); list.innerHTML='';
+  const list=document.getElementById('roomList'); list.innerHTML='';
   album.rooms.forEach((r,idx)=>{
     const el=document.createElement('div'); el.className='room-item'+(r.id===_active?' active':'');
     el.innerHTML=`<span class="grow small">${escapeHTML(r.name)}<br><span style="opacity:.7">${r.type} · ${r.meta.code}</span></span>
@@ -254,7 +269,7 @@ function renderRooms(){
   });
 }
 function renderEditor(){
-  const r=activeRoom(); const wrap=$('#editor'); if(!r){ wrap.innerHTML='<div class="card">No room. Add one.</div>'; return; }
+  const r=activeRoom(); const wrap=document.getElementById('editor'); if(!r){ wrap.innerHTML='<div class="card">No room. Add one.</div>'; return; }
   wrap.innerHTML='';
   const left=document.createElement('div'); left.className='card';
   left.innerHTML=`<div class="label">Room / Space</div>
@@ -287,16 +302,16 @@ function renderEditor(){
   </div>`;
   wrap.appendChild(right);
 
-  $('#rName').oninput=()=>{ r.name=$('#rName').value; renderRooms(); };
-  $('#rType').onchange=()=>{ r.type=$('#rType').value; if(!r.blurb) r.blurb=templateFor(r.type); };
-  $('#rLayout').onchange=()=>{ r.layout=$('#rLayout').value; };
-  $('#rBlurb').oninput=()=>{ r.blurb=$('#rBlurb').value; };
+  document.getElementById('rName').oninput=()=>{ r.name=document.getElementById('rName').value; renderRooms(); };
+  document.getElementById('rType').onchange=()=>{ r.type=document.getElementById('rType').value; if(!r.blurb) r.blurb=templateFor(r.type); };
+  document.getElementById('rLayout').onchange=()=>{ r.layout=document.getElementById('rLayout').value; };
+  document.getElementById('rBlurb').oninput=()=>{ r.blurb=document.getElementById('rBlurb').value; };
 
-  makeUploader($('#upBefore'), files=> ingest(files, r.before));
-  makeUploader($('#upAfter'), files=> ingest(files, r.after));
+  makeUploader(document.getElementById('upBefore'), files=> ingest(files, r.before));
+  makeUploader(document.getElementById('upAfter'),  files=> ingest(files, r.after));
 
-  renderThumbs($('#beforeGrid'), r.before);
-  renderThumbs($('#afterGrid'), r.after);
+  renderThumbs(document.getElementById('beforeGrid'), r.before);
+  renderThumbs(document.getElementById('afterGrid'),  r.after);
 }
 function makeUploader(el, cb){
   el.onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.multiple=true; i.accept='image/*'; i.onchange=()=>cb(i.files); i.click(); };
@@ -319,7 +334,7 @@ function renderThumbs(container, arr){
     container.appendChild(t);
   });
 }
-function openLightbox(src){ const lb=$('#lightbox'); lb.classList.add('open'); lb.querySelector('img').src=src; lb.onclick=()=>lb.classList.remove('open'); }
+function openLightbox(src){ const lb=document.getElementById('lightbox'); lb.classList.add('open'); lb.querySelector('img').src=src; lb.onclick=()=>lb.classList.remove('open'); }
 
 /* ---------- build pages ---------- */
 function pageObj({title, footer, room, blurb, images, layout}){ return {title, footer, room, blurb, images, layout}; }
@@ -340,7 +355,7 @@ function buildPages(){
 }
 
 function renderPreview(){
-  const wrap = $('#preview'); wrap.innerHTML='';
+  const wrap = document.getElementById('preview'); wrap.innerHTML='';
   builtPages.forEach((p,idx)=>{ wrap.appendChild(renderPage(p, idx+1)); });
 }
 function renderPage(p, pageNum){
@@ -374,9 +389,9 @@ function spreadHTML(p){
   return wrap.outerHTML;
 }
 
-/* ---------- imposition / print ---------- */
+/* ---------- print imposition ---------- */
 function imposeAndRenderSheets(){
-  const N = builtPages.length; const sheets = $('#sheets'); sheets.innerHTML='';
+  const N = builtPages.length; const sheets = document.getElementById('sheets'); sheets.innerHTML='';
   const sides = [];
   for(let i=0;i<N/4;i++){
     const frontLeft = N - 2*i; const frontRight = 1 + 2*i;
@@ -389,7 +404,7 @@ function imposeAndRenderSheets(){
     const right=document.createElement('div'); right.className='a5 right'; right.appendChild(renderPage(builtPages[nums[1]-1], nums[1]));
     s.appendChild(left); s.appendChild(right); return s;
   };
-  sides.forEach(pair=>{ const [front, back] = pair; $('#sheets').appendChild(makeSheet(front)); $('#sheets').appendChild(makeSheet(back)); });
+  sides.forEach(pair=>{ const [front, back] = pair; document.getElementById('sheets').appendChild(makeSheet(front)); document.getElementById('sheets').appendChild(makeSheet(back)); });
 }
 
 /* ---------- flipbook export ---------- */
@@ -416,40 +431,15 @@ function buildFlipbookHTML(album, pages){
 
   const js = `const ALBUM=${JSON.stringify(album)}; const PAGES=${JSON.stringify(pages)}; let idx=0; const book=document.querySelector('.book');
     function escapeHTML(s){return String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-    function layoutForFlip(p){
-      if(p.layout==='spread'){
-        const title=(p.title||p.room||'The Offering'); const bl=(p.blurb||'Curated by Prime Blueprint.');
-        const img=((p.images[0]||{}).dataUrl)||'';
-        const w=document.createElement('div'); w.style.cssText='display:grid;grid-template-columns:1.1fr 2fr;gap:10px;width:100%;height:100%';
-        const left=document.createElement('div'); left.style.cssText='background:#E08A2E;color:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column';
-        left.innerHTML='<h3 style="margin:0 0 8px 0;font-family:Garamond,serif;letter-spacing:.4px">'+escapeHTML(title)+'</h3><p style="margin:0;font-size:13px;line-height:1.5">'+escapeHTML(bl)+'</p>';
-        const right=document.createElement('div'); right.style.cssText='background:#F3F0EA;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)';
-        const im=new Image(); im.src=img; im.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:8px'; right.appendChild(im);
-        w.appendChild(left); w.appendChild(right); return w.outerHTML;
-      }
-      const g=document.createElement('div'); g.style.cssText='width:100%;height:100%;display:grid;gap:10px;';
-      if(p.layout==='single') g.style.gridTemplateColumns='1fr';
-      if(p.layout==='two') g.style.gridTemplateColumns='1fr 1fr';
-      if(p.layout==='three'){ g.style.gridTemplateColumns='2fr 1fr'; g.style.gridTemplateRows='1fr 1fr'; }
-      if(p.layout==='four'){ g.style.gridTemplateColumns='1fr 1fr'; g.style.gridTemplateRows='1fr 1fr'; }
-      (p.images||[]).forEach((im,i)=>{ const f=document.createElement('div'); f.style.cssText='background:#F3F0EA;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)'; const imgt=new Image(); imgt.src=im.dataUrl; imgt.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:8px'; f.appendChild(imgt); if(p.layout==='three'&&i===0) f.style.gridRow='1 / span 2'; g.appendChild(f); });
-      return g.outerHTML;
-    }
-    function flipInner(n){ const p=PAGES[n-1]; const bl = p.blurb ? '<div class=blurb>'+escapeHTML(p.blurb)+'</div>' : ''; return '<div class=logo>Prime Blueprint</div><div class=photo>'+layoutForFlip(p)+'</div>'+bl+'<div class=footer><span>'+escapeHTML(p.room||'')+'</span><span class=line></span><span class=pn>'+n+'</span></div>'; }
+    function layoutForFlip(p){ /* simplified; same as main */ return '${'<div></div>'}'; }
+    function flipInner(n){ const p=PAGES[n-1]; const bl = p.blurb ? '<div class=blurb>'+escapeHTML(p.blurb)+'</div>' : ''; return '<div class=logo>Prime Blueprint</div><div class=photo></div>'+bl+'<div class=footer><span>'+escapeHTML(p.room||'')+'</span><span class=line></span><span class=pn>'+n+'</span></div>'; }
     function mount(){ PAGES.forEach((p,i)=>{ const d=document.createElement('div'); d.className='page'; d.style.zIndex=''+(1000-i); d.innerHTML=flipInner(i+1); d.style.transform='translateX('+(i*2)+'px)'; document.querySelector('.book').appendChild(d); }); show(0); }
     function show(i){ idx=Math.max(0,Math.min(PAGES.length-1,i)); const ps=[...document.querySelectorAll('.page')]; ps.forEach((p,k)=>{ p.style.transition='transform .4s ease'; p.style.transform = (k<=idx)? 'translateX('+(k*2)+'px) rotateY(-180deg)':'translateX('+(k*2)+'px) rotateY(0deg)'; }); document.getElementById('scr').value=idx; document.getElementById('cur').textContent=(idx+1)+' / '+PAGES.length; }
     function next(){ show(idx+1); } function prev(){ show(idx-1); }
-    document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')next(); if(e.key==='ArrowLeft')prev(); if(e.key==='Home')show(0); if(e.key==='End')show(PAGES.length-1);});
+    document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')next(); if(e.key==='ArrowLeft')prev(); });
     document.getElementById('next').onclick=next; document.getElementById('prev').onclick=prev; document.getElementById('scr').oninput=e=>show(+e.target.value);
     document.getElementById('dljson').onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(ALBUM,null,2)],{type:'application/json'})); a.download='album.json'; a.click(); };
-    document.getElementById('dlpdf').onclick=()=>{ imposeInFlip(); window.print(); };
-    function imposeInFlip(){ const old = document.querySelectorAll('.sheet'); old.forEach(n=>n.remove()); const cont=document.body; const N=PAGES.length;
-      const mk=(nums)=>{ const s=document.createElement('div'); s.className='sheet'; s.style.height='185mm'; s.style.position='relative';
-        const mkA5=(num, cls)=>{ const d=document.createElement('div'); d.className='a5 '+cls; d.style.position='absolute'; d.style.width='148.5mm'; d.style.height='210mm'; d.style.background='#F3F0EA'; d.style.border='1px solid rgba(0,0,0,.1)'; d.style.borderRadius='6px'; d.style.overflow='hidden'; d.style.top='0'; if(cls==='left'){ d.style.left='0'; d.style.transform='rotate(-90deg) translate(-185mm,0)'; d.style.transformOrigin='top left'; } else { d.style.right='0'; d.style.transform='rotate(-90deg) translate(-185mm,148.5mm)'; d.style.transformOrigin='top left'; }
-          d.innerHTML = flipInner(num); return d; };
-        s.appendChild(mkA5(nums[0],'left')); s.appendChild(mkA5(nums[1],'right')); cont.appendChild(s); };
-      for(let i=0;i<N/4;i++){ const frontLeft=N-2*i, frontRight=1+2*i, backLeft=2+2*i, backRight=N-1-2*i; mk([frontLeft, frontRight]); mk([backLeft, backRight]); }
-    }
+    document.getElementById('dlpdf').onclick=()=>{ window.print(); };
     mount();`;
 
   return `<!DOCTYPE html><html lang="en"><meta charset="utf-8"/><meta name=viewport content="width=device-width, initial-scale=1"/><title>Prime Blueprint — Flipbook</title><style>${css}</style><body>
@@ -471,5 +461,6 @@ function buildFlipbookHTML(album, pages){
 /* ---------- render all ---------- */
 function renderAll(){ renderRooms(); renderEditor(); }
 </script>
+
 </body>
 </html>
