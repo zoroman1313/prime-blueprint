@@ -201,7 +201,7 @@ function save(){ localStorage.setItem('pb_album', JSON.stringify(album)); toast(
 function load(){ try{ const j = localStorage.getItem('pb_album'); return j? JSON.parse(j):null;}catch(e){return null} }
 
 /* ---------- app boot (run immediately) ---------- */
-boot();  // به‌جای DOMContentLoaded
+boot();
 function boot(){
   console.log('PB: boot');
   // project fields
@@ -431,7 +431,6 @@ function buildFlipbookHTML(album, pages){
 
   const js = `const ALBUM=${JSON.stringify(album)}; const PAGES=${JSON.stringify(pages)}; let idx=0; const book=document.querySelector('.book');
     function escapeHTML(s){return String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-    function layoutForFlip(p){ /* simplified; same as main */ return '${'<div></div>'}'; }
     function flipInner(n){ const p=PAGES[n-1]; const bl = p.blurb ? '<div class=blurb>'+escapeHTML(p.blurb)+'</div>' : ''; return '<div class=logo>Prime Blueprint</div><div class=photo></div>'+bl+'<div class=footer><span>'+escapeHTML(p.room||'')+'</span><span class=line></span><span class=pn>'+n+'</span></div>'; }
     function mount(){ PAGES.forEach((p,i)=>{ const d=document.createElement('div'); d.className='page'; d.style.zIndex=''+(1000-i); d.innerHTML=flipInner(i+1); d.style.transform='translateX('+(i*2)+'px)'; document.querySelector('.book').appendChild(d); }); show(0); }
     function show(i){ idx=Math.max(0,Math.min(PAGES.length-1,i)); const ps=[...document.querySelectorAll('.page')]; ps.forEach((p,k)=>{ p.style.transition='transform .4s ease'; p.style.transform = (k<=idx)? 'translateX('+(k*2)+'px) rotateY(-180deg)':'translateX('+(k*2)+'px) rotateY(0deg)'; }); document.getElementById('scr').value=idx; document.getElementById('cur').textContent=(idx+1)+' / '+PAGES.length; }
