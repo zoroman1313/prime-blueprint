@@ -1,48 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Prime Blueprint — A5 Booklet</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prime Blueprint — A5 Landscape Booklet Builder</title>
+<style>
+:root{
+  --ink:#1C1C1C; --stone:#F3F0EA; --taupe:#C7B8A6; --moss:#6F7B6B; --gold:#C8A96B;
+  --ui:#ffffff; --shadow:0 6px 24px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.06);
+  --accent:#E08A2E;
+  --gutter-inner:16mm; --gutter-outer:10mm;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:var(--stone);color:var(--ink);font:16px/1.6 "Inter","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif}
+.app{display:grid;grid-template-columns:320px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{background:#fff;box-shadow:var(--shadow);position:sticky;top:0;height:100vh;overflow:auto;padding:20px}
+.brand{font-family:"Garamond","Times New Roman",serif;letter-spacing:.5px;font-size:22px}
+.brand .sub{display:block;font:12px/1.2 inherit;color:#666;margin-top:2px}
+.group{margin:20px 0}
+.label{font-size:12px;color:#555;margin-bottom:6px}
+.input, .select, .button{width:100%;border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:12px;padding:10px 12px}
+.input:focus, .select:focus{outline:2px solid var(--taupe)}
+.row{display:flex;gap:8px}
+.button{cursor:pointer;transition:transform .03s ease;border:1px solid rgba(0,0,0,.12);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.button.gold{background:var(--gold);color:#111;border-color:var(--gold)}
+.small{font-size:12px}
+.room-list{display:flex;flex-direction:column;gap:8px}
+.room-item{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:#faf9f7}
+.room-item.active{outline:2px solid var(--gold)}
+.room-item .grow{flex:1}
+.icon-btn{border:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:6px 8px;cursor:pointer}
+
+/* Main */
+.main{padding:20px 24px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{padding:10px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.12);cursor:pointer;background:#fff}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.toolbar .button{width:auto}
+.card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+.grid{display:grid;gap:16px}
+.grid.two{grid-template-columns:1fr 1fr}
+
+.upload{border:1px dashed rgba(0,0,0,.2);border-radius:16px;padding:16px;text-align:center;background:#fcfbf9}
+.upload.drag{background:#f6efe5}
+.thumb-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:10px;margin-top:8px}
+.thumb{position:relative;background:var(--stone);border-radius:12px;padding:8px;border:1px solid rgba(0,0,0,.08)}
+.thumb img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.thumb input{width:100%;margin-top:6px;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:6px}
+.thumb .del{position:absolute;top:6px;right:6px;background:#fff;border:1px solid rgba(0,0,0,.2);border-radius:8px;padding:2px 6px;cursor:pointer}
+
+/* A5 page preview (screen) */
+.page{width:210mm;height:148.5mm;background:var(--stone);border-radius:18px;margin:auto;border:1px solid rgba(0,0,0,.08);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.page .logo{position:absolute;top:10mm;left:0;right:0;text-align:center;font-family:"Garamond","Times New Roman",serif;font-size:18px;letter-spacing:.6px}
+.page .photo{position:absolute;left:var(--gutter-outer);right:var(--gutter-outer);top:22mm;bottom:20mm;background:#eee;border-radius:12px;padding:8px;display:grid;gap:8px}
+.page.left  .photo{left:var(--gutter-inner);right:var(--gutter-outer)}
+.page.right .photo{left:var(--gutter-outer);right:var(--gutter-inner)}
+.frame{background:var(--stone);border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.frame img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.page .footer{position:absolute;left:12mm;right:12mm;bottom:8mm;display:flex;align-items:center;gap:8px;font-size:12px;color:#333}
+.page .footer .line{flex:1;height:1px;background:linear-gradient(90deg, rgba(0,0,0,.1), rgba(0,0,0,.2), rgba(0,0,0,.1))}
+.page .footer .pn{font-variant-numeric:tabular-nums}
+.page .blurb{position:absolute;left:12mm;right:12mm;bottom:20mm;font-size:12px;color:#444;max-height:28mm;overflow:hidden}
+
+/* Spread */
+.page .spread{display:grid;grid-template-columns:1.1fr 2fr;gap:10px;width:100%;height:100%}
+.page .spread .panel{background:var(--accent);color:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column}
+.page .spread .panel h3{margin:0 0 8px 0;font-family:"Garamond","Times New Roman",serif;letter-spacing:.4px}
+.page .spread .panel p{margin:0;font-size:13px;line-height:1.5}
+.page .spread .img{background:var(--stone);border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.page .spread .img img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+
+/* Lightbox + Toast */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:50}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:86vh;border-radius:12px;box-shadow:var(--shadow)}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:60}
+.toast.show{opacity:1}
+
+/* PRINT (A4 landscape imposition) */
+@page{size:A4 landscape;margin:10mm}
+@media print{
+  body{background:#fff}
+  .sidebar,.tabs,.toolbar,.card.editor{display:none!important}
+  .print-sheets{display:block}
+  .sheet{position:relative;page-break-after:always;height:185mm}
+  .a5{position:absolute;width:148.5mm;height:210mm;background:var(--stone);border:1px solid rgba(0,0,0,.1);border-radius:6px;overflow:hidden}
+  .a5.left{left:0;top:0;transform:rotate(-90deg) translate(-185mm,0);transform-origin:top left}
+  .a5.right{right:0;top:0;transform:rotate(-90deg) translate(-185mm,148.5mm);transform-origin:top left}
+}
+.print-sheets{display:none}
+.page::before{content:"";position:absolute;inset:0;background:
+  linear-gradient(45deg, rgba(0,0,0,.02) 25%, rgba(0,0,0,0) 25%) 0 0/6px 6px,
+  linear-gradient(-45deg, rgba(0,0,0,.02) 25%, rgba(0,0,0,0) 25%) 0 0/6px 6px;pointer-events:none}
+</style>
 </head>
 <body>
-  <div id="app">
-    <aside>
-      <h2>Prime Blueprint</h2>
-      <p>Luxury Renovation Album — A5 Landscape</p>
-
-      <div class="form">
-        <input type="text" placeholder="Project Title" id="projectTitle">
-        <input type="text" placeholder="Address" id="projectAddress">
-        <input type="text" placeholder="Client" id="projectClient">
-        <input type="text" placeholder="Date" id="projectDate">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Prime Blueprint <span class="sub">Luxury Renovation Album — A5 Landscape</span></div>
+    <div class="group">
+      <div class="label">Project</div>
+      <input id="pTitle" class="input" placeholder="Project Title"/>
+      <input id="pAddr" class="input" placeholder="Address" style="margin-top:6px"/>
+      <div class="row" style="margin-top:6px">
+        <input id="pClient" class="input" placeholder="Client"/>
+        <input id="pDate" class="input" placeholder="Date"/>
       </div>
-
-      <div class="rooms">
-        <button id="addRoom">+ Add Room</button>
-        <button id="exportJSON">Export JSON</button>
-        <button id="importJSON">Import JSON</button>
+    </div>
+    <div class="group">
+      <div class="label">Rooms / Spaces</div>
+      <div id="roomList" class="room-list"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="button gold" id="addRoom">+ Add Room</button>
+        <button class="button" id="expJSON">Export JSON</button>
+        <button class="button" id="impJSON">Import JSON</button>
       </div>
-
-      <div class="exports">
-        <button id="exportPDF">Export PDF</button>
-        <button id="exportFlipbook">Export Flipbook (HTML)</button>
+    </div>
+    <div class="group">
+      <div class="label">Exports</div>
+      <div class="row">
+        <button class="button primary" id="expPDF">Export PDF</button>
+        <button class="button" id="expFlip">Export Flipbook (HTML)</button>
       </div>
-    </aside>
+      <div class="small" style="opacity:.8;margin-top:6px">Print A4 landscape · Duplex short-edge · 100% scale · Background ON</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="tabs">
+      <button class="tab active" data-tab="edit">Edit</button>
+      <button class="tab" data-tab="preview">Album Preview</button>
+    </div>
+    <div class="toolbar">
+      <button class="button" id="regenCopy">Regenerate Copy</button>
+      <button class="button" id="recalc">Rebuild Pages</button>
+      <button class="button" id="save">Save</button>
+    </div>
+    <div class="grid two card editor" id="editor"></div>
+    <div id="preview" class="grid" style="display:none"></div>
+    <div class="print-sheets" id="sheets"></div>
+  </main>
+</div>
 
-    <main>
-      <div class="toolbar">
-        <button id="edit">Edit</button>
-        <button id="preview">Album Preview</button>
-        <button id="regen">Regenerate Copy</button>
-        <button id="rebuild">Rebuild Pages</button>
-        <button id="save">Save</button>
+<div class="lightbox" id="lightbox"><img alt=""/></div>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = (s,root=document)=>root.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const uid = ()=>'_'+Math.random().toString(36).slice(2,9);
+const todayISO = ()=> new Date().toISOString().slice(0,10);
+function escapeHTML(s=''){ return String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1200); }
+function fileToDataURL(f){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); }); }
+function download(name, text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'application/octet-stream'})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+function placeholder(color='#ddd'){ const c=document.createElement('canvas'); c.width=800;c.height=600; const x=c.getContext('2d'); x.fillStyle=color; x.fillRect(0,0,c.width,c.height); x.fillStyle='rgba(0,0,0,.2)'; x.fillRect(0,0,c.width,40); x.fillStyle='#fff'; x.font='20px sans-serif'; x.fillText('Prime Blueprint', 12,26); return c.toDataURL('image/png'); }
+
+/* ---------- copy templates ---------- */
+const TEMPLATES = {
+  Bedroom: 'A calm, layered palette with soft textures and controlled lighting creates a restful sanctuary. Bespoke joinery maximises storage while keeping sightlines clean.',
+  Dining: 'Warm timber and balanced illumination shape an intimate setting for gatherings. Proportions and circulation are refined to host comfortably.',
+  Kitchen: 'Functional workflow wrapped in understated materials. Integrated lighting and durable finishes support daily use without visual noise.',
+  Living:  'Neutral foundations with tactile accents. Furniture layout optimises conversation, daylight, and evening ambience.',
+  Bathroom:'Stone-inspired finishes and minimal hardware deliver a spa-level quiet. Task and ambient lighting are tuned to flatter skin tones and surfaces.',
+  WC:      'Compact, considered, and quietly luxurious. Durable finishes meet precise lighting for a calm daily ritual.',
+  Hallway: 'A restrained welcome with durable surfaces and clear wayfinding. Light guides movement and expands perceived width.',
+  Office:  'Acoustic softness, controlled colour, and ergonomic layout enhance focus. Cable and storage management keep sightlines calm.',
+  Other:   'Proportion, light, and finish come together in a composed, timeless atmosphere with careful craftsmanship.'
+};
+function detectType(name){
+  const n=name.toLowerCase();
+  if(/bed/.test(n)) return 'Bedroom';
+  if(/bath|wc|toilet/.test(n)) return /wc|toilet/.test(n)?'WC':'Bathroom';
+  if(/kitchen/.test(n)) return 'Kitchen';
+  if(/dining/.test(n)) return 'Dining';
+  if(/living|lounge/.test(n)) return 'Living';
+  if(/hall|foyer|entry/.test(n)) return 'Hallway';
+  if(/office|study/.test(n)) return 'Office';
+  return 'Other';
+}
+function meta(){ const year = new Date().getFullYear(); const durationWeeks = 6+Math.floor(Math.random()*7); const code = 'PB-'+year+'-'+Math.random().toString(36).slice(2,6).toUpperCase(); return {durationWeeks, code, year}; }
+function templateFor(type){ return TEMPLATES[type]||TEMPLATES.Other; }
+function smartCaption(name){ const m=name.match(/(\d{4})(\d{2})(\d{2})/); return m?`Photo ${m[1]}-${m[2]}-${m[3]}`: 'Photo '+String(Math.random()).slice(2,4); }
+
+/* ---------- state ---------- */
+const DEFAULT_ALBUM = {
+  projectTitle:'Sample Residence', address:'22 Wren Street, London', client:'J. Carter', dateISO: todayISO(),
+  rooms:[{ id:uid(), name:'Living Room', type:'Living', layout:'spread', blurb:TEMPLATES['Living'],
+           before:[{id:uid(), dataUrl:placeholder('#bbb'), caption:'Photo 01'}],
+           after:[{id:uid(), dataUrl:placeholder('#999'), caption:'Photo 02'}],
+           meta:meta() }]
+};
+let album = load() || DEFAULT_ALBUM;
+let builtPages = [];
+let _active = album.rooms[0]?.id;
+function save(){ localStorage.setItem('pb_album', JSON.stringify(album)); toast('Saved'); renderAll(); }
+function load(){ try{ const j = localStorage.getItem('pb_album'); return j? JSON.parse(j):null;}catch(e){return null} }
+
+/* ---------- init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // project fields
+  $('#pTitle').value = album.projectTitle; $('#pAddr').value = album.address; $('#pClient').value = album.client; $('#pDate').value = album.dateISO;
+  ['pTitle','pAddr','pClient','pDate'].forEach(id=>{
+    $('#'+id).addEventListener('input',()=>{ album.projectTitle=$('#pTitle').value; album.address=$('#pAddr').value; album.client=$('#pClient').value; album.dateISO=$('#pDate').value; save(); });
+  });
+
+  // buttons
+  $('#addRoom').onclick=()=>{ const name = prompt('Room/Space name? e.g., Master Bedroom'); if(!name) return;
+    const type = detectType(name);
+    album.rooms.push({id:uid(), name, type, layout:'spread', blurb:templateFor(type), before:[], after:[], meta:meta()});
+    save();
+  };
+  $('#expJSON').onclick=()=>download('album.json', JSON.stringify(album, null, 2));
+  $('#impJSON').onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.accept='.json,application/json'; i.onchange=async()=>{ const f=i.files[0]; if(!f) return; const t=await f.text(); album=JSON.parse(t); save(); }; i.click(); };
+  $('#regenCopy').onclick=()=>{ const r=activeRoom(); if(!r) return; r.blurb = templateFor(r.type); save(); };
+  $('#recalc').onclick=()=>{ renderAll(); toast('Rebuilt'); };
+  $('#save').onclick=save;
+
+  // tabs
+  $$('.tab').forEach(b=>b.onclick=()=>{ $$('.tab').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+    if(b.dataset.tab==='edit'){ $('#editor').style.display='grid'; $('#preview').style.display='none'; }
+    else { buildPages(); renderPreview(); $('#editor').style.display='none'; $('#preview').style.display='grid'; }
+  });
+
+  // exports
+  $('#expPDF').onclick=()=>{ buildPages(); imposeAndRenderSheets(); setTimeout(()=>window.print(),50); };
+  $('#expFlip').onclick=()=>{ buildPages(); const html = buildFlipbookHTML(album, builtPages); const blob = new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='album-flipbook.html'; a.click(); URL.revokeObjectURL(a.href); toast('Flipbook exported'); };
+
+  renderAll();
+});
+
+/* ---------- rooms & editor ---------- */
+function activeRoom(){ return album.rooms.find(r=>r.id===_active); }
+function renderRooms(){
+  const list=$('#roomList'); list.innerHTML='';
+  album.rooms.forEach((r,idx)=>{
+    const el=document.createElement('div'); el.className='room-item'+(r.id===_active?' active':'');
+    el.innerHTML=`<span class="grow small">${escapeHTML(r.name)}<br><span style="opacity:.7">${r.type} · ${r.meta.code}</span></span>
+      <button class="icon-btn" title="Up">▲</button>
+      <button class="icon-btn" title="Down">▼</button>
+      <button class="icon-btn" title="Rename">✎</button>
+      <button class="icon-btn" title="Delete">✕</button>`;
+    el.onclick=(e)=>{ if(e.target.tagName==='BUTTON')return; _active=r.id; renderRooms(); renderEditor(); };
+    const [up,down,ren,del]=el.querySelectorAll('button');
+    up.onclick=(ev)=>{ev.stopPropagation(); if(idx>0){ const t=album.rooms[idx-1]; album.rooms[idx-1]=album.rooms[idx]; album.rooms[idx]=t; save(); }}
+    down.onclick=(ev)=>{ev.stopPropagation(); if(idx<album.rooms.length-1){ const t=album.rooms[idx+1]; album.rooms[idx+1]=album.rooms[idx]; album.rooms[idx]=t; save(); }}
+    ren.onclick=(ev)=>{ev.stopPropagation(); const n=prompt('Rename room', r.name); if(n){ r.name=n; r.type=detectType(n); save(); }}
+    del.onclick=(ev)=>{ev.stopPropagation(); if(confirm('Delete room?')){ album.rooms.splice(idx,1); save(); }}
+    list.appendChild(el);
+  });
+}
+function renderEditor(){
+  const r=activeRoom(); const wrap=$('#editor'); if(!r){ wrap.innerHTML='<div class="card">No room. Add one.</div>'; return; }
+  wrap.innerHTML='';
+  const left=document.createElement('div'); left.className='card';
+  left.innerHTML=`<div class="label">Room / Space</div>
+    <input class="input" id="rName" value="${escapeHTML(r.name)}"/>
+    <div class="row" style="margin-top:8px">
+      <select id="rType" class="select">
+        ${['Bedroom','Living','Kitchen','Dining','Bathroom','WC','Hallway','Office','Other'].map(t=>`<option ${t===r.type?'selected':''}>${t}</option>`).join('')}
+      </select>
+      <select id="rLayout" class="select">
+        ${['single','two','three','four','spread'].map(t=>`<option ${t===r.layout?'selected':''} value="${t}">${t.toUpperCase()}</option>`).join('')}
+      </select>
+    </div>
+    <div class="label" style="margin-top:12px">Promotional blurb</div>
+    <textarea id="rBlurb" class="input" style="height:120px">${escapeHTML(r.blurb||'')}</textarea>
+    <div class="small" style="opacity:.7;margin-top:6px">Tip: Use concise, architectural language.</div>`;
+  wrap.appendChild(left);
+
+  const right=document.createElement('div'); right.className='card';
+  right.innerHTML=`<div class="grid two">
+    <div>
+      <div class="label">Before Photos</div>
+      <div class="upload" id="upBefore">Drop or click to upload</div>
+      <div class="thumb-grid" id="beforeGrid"></div>
+    </div>
+    <div>
+      <div class="label">After Photos</div>
+      <div class="upload" id="upAfter">Drop or click to upload</div>
+      <div class="thumb-grid" id="afterGrid"></div>
+    </div>
+  </div>`;
+  wrap.appendChild(right);
+
+  $('#rName').oninput=()=>{ r.name=$('#rName').value; renderRooms(); };
+  $('#rType').onchange=()=>{ r.type=$('#rType').value; if(!r.blurb) r.blurb=templateFor(r.type); };
+  $('#rLayout').onchange=()=>{ r.layout=$('#rLayout').value; };
+  $('#rBlurb').oninput=()=>{ r.blurb=$('#rBlurb').value; };
+
+  makeUploader($('#upBefore'), files=> ingest(files, r.before));
+  makeUploader($('#upAfter'), files=> ingest(files, r.after));
+
+  renderThumbs($('#beforeGrid'), r.before);
+  renderThumbs($('#afterGrid'), r.after);
+}
+function makeUploader(el, cb){
+  el.onclick=()=>{ const i=document.createElement('input'); i.type='file'; i.multiple=true; i.accept='image/*'; i.onchange=()=>cb(i.files); i.click(); };
+  el.ondragover=(e)=>{ e.preventDefault(); el.classList.add('drag'); };
+  el.ondragleave=()=>el.classList.remove('drag');
+  el.ondrop=(e)=>{ e.preventDefault(); el.classList.remove('drag'); cb(e.dataTransfer.files); };
+}
+async function ingest(files, arr){
+  for(const f of files){ const dataUrl = await fileToDataURL(f); arr.push({id:uid(), dataUrl, caption:smartCaption(f.name)}); }
+  save();
+}
+function renderThumbs(container, arr){
+  container.innerHTML='';
+  arr.forEach((it,idx)=>{
+    const t=document.createElement('div'); t.className='thumb';
+    t.innerHTML=`<img src="${it.dataUrl}" alt=""/><button class="del">×</button><input value="${escapeHTML(it.caption||'')}"/>`;
+    t.querySelector('img').onclick=()=>openLightbox(it.dataUrl);
+    t.querySelector('.del').onclick=()=>{ arr.splice(idx,1); save(); };
+    t.querySelector('input').oninput=(e)=>{ it.caption=e.target.value; };
+    container.appendChild(t);
+  });
+}
+function openLightbox(src){ const lb=$('#lightbox'); lb.classList.add('open'); lb.querySelector('img').src=src; lb.onclick=()=>lb.classList.remove('open'); }
+
+/* ---------- build pages ---------- */
+function pageObj({title, footer, room, blurb, images, layout}){ return {title, footer, room, blurb, images, layout}; }
+function pickMax(r){ const src=(r.after[0]?.dataUrl) || (r.before[0]?.dataUrl) || placeholder('#ddd'); return [{dataUrl:src}]; }
+function pickN(r,n){ const pool=[...r.after,...r.before]; const out=[]; for(let i=0;i<n;i++) out.push({dataUrl: pool[i]?.dataUrl || placeholder('#ddd')}); return out; }
+
+function buildPages(){
+  builtPages = [];
+  builtPages.push(pageObj({title: album.projectTitle, footer:'Cover', room:'Cover', blurb:`Designed & Delivered by Prime Blueprint — ${album.address} · ${album.client} · ${album.dateISO}`, images:[], layout:'single'}));
+  const toc = album.rooms.map((r,i)=>`${i+1}. ${r.name}`).join('  •  ');
+  builtPages.push(pageObj({title:'Contents', footer:'Contents', room:'Contents', blurb:toc, images:[], layout:'single'}));
+  for(const r of album.rooms){
+    const imgs = (r.layout==='single'? pickMax(r) : r.layout==='two'? pickN(r,2) : r.layout==='three'? pickN(r,3) : r.layout==='four'? pickN(r,4) : pickMax(r));
+    builtPages.push(pageObj({title:r.name, footer:r.name, room:r.name, blurb:r.blurb, images:imgs, layout:r.layout}));
+  }
+  builtPages.push(pageObj({title:'Prime Blueprint', footer:'Back Cover', room:'Back', blurb:'Curated by Prime Blueprint · '+album.dateISO, images:[], layout:'single'}));
+  while(builtPages.length % 4 !== 0) builtPages.push(pageObj({title:'', footer:'', room:'', blurb:'', images:[], layout:'single'}));
+}
+
+function renderPreview(){
+  const wrap = $('#preview'); wrap.innerHTML='';
+  builtPages.forEach((p,idx)=>{ wrap.appendChild(renderPage(p, idx+1)); });
+}
+function renderPage(p, pageNum){
+  const el=document.createElement('div'); el.className='page ' + (pageNum % 2 === 0 ? 'left' : 'right');
+  const layout = (p.layout==='spread') ? spreadHTML(p) : layoutHTML(p);
+  el.innerHTML=`<div class="logo">Prime Blueprint</div>
+    <div class="photo">${layout}</div>
+    ${p.blurb?`<div class="blurb">${escapeHTML(p.blurb)}</div>`:''}
+    <div class="footer"><span>${escapeHTML(p.room||'')}</span><span class="line"></span><span class="pn">${pageNum}</span></div>`;
+  return el;
+}
+function layoutHTML(p){
+  if(p.layout==='spread') return spreadHTML(p);
+  const imgs = p.images||[];
+  const grid = document.createElement('div'); grid.style.cssText='width:100%;height:100%;display:grid;gap:8px;';
+  if(p.layout==='single'){ grid.style.gridTemplateColumns='1fr'; }
+  if(p.layout==='two'){ grid.style.gridTemplateColumns='1fr 1fr'; }
+  if(p.layout==='three'){ grid.style.gridTemplateColumns='2fr 1fr'; grid.style.gridTemplateRows='1fr 1fr'; }
+  if(p.layout==='four'){ grid.style.gridTemplateColumns='1fr 1fr'; grid.style.gridTemplateRows='1fr 1fr'; }
+  imgs.forEach((im,i)=>{ const f=document.createElement('div'); f.className='frame'; f.innerHTML=`<img src="${im.dataUrl}">`; grid.appendChild(f); if(p.layout==='three' && i===0){ f.style.gridRow='1 / span 2'; }});
+  return grid.outerHTML;
+}
+function spreadHTML(p){
+  const img = (p.images && p.images[0] && p.images[0].dataUrl) || placeholder('#ddd');
+  const title = p.title || p.room || 'The Offering';
+  const bl = p.blurb || 'Curated by Prime Blueprint.';
+  const wrap = document.createElement('div'); wrap.className='spread';
+  const left = document.createElement('div'); left.className='panel'; left.innerHTML = `<h3>${escapeHTML(title)}</h3><p>${escapeHTML(bl)}</p>`;
+  const right = document.createElement('div'); right.className='img'; right.innerHTML = `<img src="${img}" alt="">`;
+  wrap.appendChild(left); wrap.appendChild(right);
+  return wrap.outerHTML;
+}
+
+/* ---------- imposition / print ---------- */
+function imposeAndRenderSheets(){
+  const N = builtPages.length; const sheets = $('#sheets'); sheets.innerHTML='';
+  const sides = [];
+  for(let i=0;i<N/4;i++){
+    const frontLeft = N - 2*i; const frontRight = 1 + 2*i;
+    const backLeft  = 2 + 2*i; const backRight = N - 1 - 2*i;
+    sides.push([[frontLeft, frontRight],[backLeft, backRight]]);
+  }
+  const makeSheet = (nums)=>{
+    const s=document.createElement('div'); s.className='sheet';
+    const left=document.createElement('div'); left.className='a5 left'; left.appendChild(renderPage(builtPages[nums[0]-1], nums[0]));
+    const right=document.createElement('div'); right.className='a5 right'; right.appendChild(renderPage(builtPages[nums[1]-1], nums[1]));
+    s.appendChild(left); s.appendChild(right); return s;
+  };
+  sides.forEach(pair=>{ const [front, back] = pair; $('#sheets').appendChild(makeSheet(front)); $('#sheets').appendChild(makeSheet(back)); });
+}
+
+/* ---------- flipbook export ---------- */
+function buildFlipbookHTML(album, pages){
+  const css = `:root{--ink:#1C1C1C;--stone:#F3F0EA;--gold:#C8A96B}
+  body{margin:0;background:var(--stone);color:var(--ink);font:16px/1.6 Inter,Segoe UI,Arial,sans-serif}
+  .bar{position:sticky;top:0;display:flex;gap:8px;padding:10px;background:#fff;border-bottom:1px solid rgba(0,0,0,.1)}
+  .brand{font-family:Garamond,Times New Roman,serif;letter-spacing:.6px}
+  .wrap{max-width:920px;margin:12px auto;padding:0 12px}
+  .book{position:relative;perspective:1600px}
+  .page{width:840px;height:594px;margin:20px auto;background:#F3F0EA;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.12);position:absolute;left:0;right:0;transform-origin:left center;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+  .page .logo{position:absolute;top:18px;left:0;right:0;text-align:center;font-family:Garamond,serif}
+  .page .photo{position:absolute;left:28px;right:28px;top:64px;bottom:70px;display:grid;gap:10px}
+  .frame{background:#F3F0EA;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .frame img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+  .page .blurb{position:absolute;left:28px;right:28px;bottom:70px;font-size:14px;color:#333;max-height:120px;overflow:hidden}
+  .page .footer{position:absolute;left:28px;right:28px;bottom:24px;display:flex;gap:8px;align-items:center}
+  .line{flex:1;height:1px;background:linear-gradient(90deg, rgba(0,0,0,.1), rgba(0,0,0,.2), rgba(0,0,0,.1))}
+  .pn{font-variant-numeric:tabular-nums}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{padding:8px 12px;border:1px solid rgba(0,0,0,.15);border-radius:10px;background:#fff;cursor:pointer}
+  input[type=range]{width:200px}
+  @media print{ .bar,.wrap{display:none} .sheet{page-break-after:always} @page{size:A4 landscape;margin:10mm} }`;
+
+  const js = `const ALBUM=${JSON.stringify(album)}; const PAGES=${JSON.stringify(pages)}; let idx=0; const book=document.querySelector('.book');
+    function escapeHTML(s){return String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+    function layoutForFlip(p){
+      if(p.layout==='spread'){
+        const title=(p.title||p.room||'The Offering'); const bl=(p.blurb||'Curated by Prime Blueprint.');
+        const img=((p.images[0]||{}).dataUrl)||'';
+        const w=document.createElement('div'); w.style.cssText='display:grid;grid-template-columns:1.1fr 2fr;gap:10px;width:100%;height:100%';
+        const left=document.createElement('div'); left.style.cssText='background:#E08A2E;color:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column';
+        left.innerHTML='<h3 style="margin:0 0 8px 0;font-family:Garamond,serif;letter-spacing:.4px">'+escapeHTML(title)+'</h3><p style="margin:0;font-size:13px;line-height:1.5">'+escapeHTML(bl)+'</p>';
+        const right=document.createElement('div'); right.style.cssText='background:#F3F0EA;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)';
+        const im=new Image(); im.src=img; im.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:8px'; right.appendChild(im);
+        w.appendChild(left); w.appendChild(right); return w.outerHTML;
+      }
+      const g=document.createElement('div'); g.style.cssText='width:100%;height:100%;display:grid;gap:10px;';
+      if(p.layout==='single') g.style.gridTemplateColumns='1fr';
+      if(p.layout==='two') g.style.gridTemplateColumns='1fr 1fr';
+      if(p.layout==='three'){ g.style.gridTemplateColumns='2fr 1fr'; g.style.gridTemplateRows='1fr 1fr'; }
+      if(p.layout==='four'){ g.style.gridTemplateColumns='1fr 1fr'; g.style.gridTemplateRows='1fr 1fr'; }
+      (p.images||[]).forEach((im,i)=>{ const f=document.createElement('div'); f.style.cssText='background:#F3F0EA;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)'; const imgt=new Image(); imgt.src=im.dataUrl; imgt.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:8px'; f.appendChild(imgt); if(p.layout==='three'&&i===0) f.style.gridRow='1 / span 2'; g.appendChild(f); });
+      return g.outerHTML;
+    }
+    function flipInner(n){ const p=PAGES[n-1]; const bl = p.blurb ? '<div class=blurb>'+escapeHTML(p.blurb)+'</div>' : ''; return '<div class=logo>Prime Blueprint</div><div class=photo>'+layoutForFlip(p)+'</div>'+bl+'<div class=footer><span>'+escapeHTML(p.room||'')+'</span><span class=line></span><span class=pn>'+n+'</span></div>'; }
+    function mount(){ PAGES.forEach((p,i)=>{ const d=document.createElement('div'); d.className='page'; d.style.zIndex=''+(1000-i); d.innerHTML=flipInner(i+1); d.style.transform='translateX('+(i*2)+'px)'; document.querySelector('.book').appendChild(d); }); show(0); }
+    function show(i){ idx=Math.max(0,Math.min(PAGES.length-1,i)); const ps=[...document.querySelectorAll('.page')]; ps.forEach((p,k)=>{ p.style.transition='transform .4s ease'; p.style.transform = (k<=idx)? 'translateX('+(k*2)+'px) rotateY(-180deg)':'translateX('+(k*2)+'px) rotateY(0deg)'; }); document.getElementById('scr').value=idx; document.getElementById('cur').textContent=(idx+1)+' / '+PAGES.length; }
+    function next(){ show(idx+1); } function prev(){ show(idx-1); }
+    document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')next(); if(e.key==='ArrowLeft')prev(); if(e.key==='Home')show(0); if(e.key==='End')show(PAGES.length-1);});
+    document.getElementById('next').onclick=next; document.getElementById('prev').onclick=prev; document.getElementById('scr').oninput=e=>show(+e.target.value);
+    document.getElementById('dljson').onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(ALBUM,null,2)],{type:'application/json'})); a.download='album.json'; a.click(); };
+    document.getElementById('dlpdf').onclick=()=>{ imposeInFlip(); window.print(); };
+    function imposeInFlip(){ const old = document.querySelectorAll('.sheet'); old.forEach(n=>n.remove()); const cont=document.body; const N=PAGES.length;
+      const mk=(nums)=>{ const s=document.createElement('div'); s.className='sheet'; s.style.height='185mm'; s.style.position='relative';
+        const mkA5=(num, cls)=>{ const d=document.createElement('div'); d.className='a5 '+cls; d.style.position='absolute'; d.style.width='148.5mm'; d.style.height='210mm'; d.style.background='#F3F0EA'; d.style.border='1px solid rgba(0,0,0,.1)'; d.style.borderRadius='6px'; d.style.overflow='hidden'; d.style.top='0'; if(cls==='left'){ d.style.left='0'; d.style.transform='rotate(-90deg) translate(-185mm,0)'; d.style.transformOrigin='top left'; } else { d.style.right='0'; d.style.transform='rotate(-90deg) translate(-185mm,148.5mm)'; d.style.transformOrigin='top left'; }
+          d.innerHTML = flipInner(num); return d; };
+        s.appendChild(mkA5(nums[0],'left')); s.appendChild(mkA5(nums[1],'right')); cont.appendChild(s); };
+      for(let i=0;i<N/4;i++){ const frontLeft=N-2*i, frontRight=1+2*i, backLeft=2+2*i, backRight=N-1-2*i; mk([frontLeft, frontRight]); mk([backLeft, backRight]); }
+    }
+    mount();`;
+
+  return `<!DOCTYPE html><html lang="en"><meta charset="utf-8"/><meta name=viewport content="width=device-width, initial-scale=1"/><title>Prime Blueprint — Flipbook</title><style>${css}</style><body>
+    <div class=bar>
+      <div class=brand>Prime Blueprint Flipbook</div>
+      <div class=controls>
+        <button id=prev>◀︎</button><button id=next>▶︎</button>
+        <input id=scr type=range min=0 max=${pages.length-1} value=0 />
+        <span id=cur></span>
+        <button id=dlpdf>Download PDF</button>
+        <button id=dljson>Download JSON</button>
       </div>
-      <div id="workspace"></div>
-    </main>
-  </div>
+    </div>
+    <div class=wrap><div class=book></div></div>
+    <script>${js}</script>
+  </body></html>`;
+}
 
-  <script src="script.js" defer></script>
+/* ---------- render all ---------- */
+function renderAll(){ renderRooms(); renderEditor(); }
+</script>
 </body>
 </html>
